@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coffee Journal | Carlos</title>
+  <style>
+    :root {
+      --bg: #f6f1e7;
+      --paper: #fffaf1;
+      --paper-2: #eee4d2;
+      --ink: #1e1b17;
+      --muted: #6f675d;
+      --soft: #9c9285;
+      --line: #d8cdbc;
+      --accent: #c54f2c;
+      --accent-dark: #7e2f1f;
+      --green: #6c8066;
+      --butter: #ead49a;
+      --danger: #a43d2e;
+      --radius: 18px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .42;
+      background:
+        linear-gradient(90deg, rgba(30,27,23,.035) 1px, transparent 1px) 0 0 / 44px 44px,
+        linear-gradient(rgba(30,27,23,.026) 1px, transparent 1px) 0 0 / 44px 44px;
+      mask-image: linear-gradient(to bottom, black, transparent 70%);
+    }
+
+    .wrap { width: min(1180px, calc(100% - 32px)); margin: 0 auto; position: relative; }
+
+    header {
+      padding: 18px 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(16px);
+      background: rgba(246,241,231,.86);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 20px;
+    }
+    h1 { margin: 0; font-size: clamp(24px, 4vw, 40px); letter-spacing: -.05em; font-family: var(--serif); font-weight: 500; }
+    .subtitle { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    button, .file-label {
+      border: 1px solid var(--ink);
+      color: var(--ink);
+      background: transparent;
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: .02em;
+      transition: .18s ease;
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+    }
+    button:hover, .file-label:hover { transform: translateY(-1px); background: var(--ink); color: var(--paper); }
+    .primary { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+    .primary:hover { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+    .ghost-danger { color: var(--danger); border-color: var(--danger); }
+    input[type="file"] { display: none; }
+
+    .hero { padding: 42px 0 26px; }
+    .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; align-items: stretch; }
+    .card {
+      border: 1px solid var(--line);
+      background: rgba(255,250,241,.72);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .hero-main { padding: clamp(24px, 5vw, 54px); position: relative; min-height: 320px; display: flex; flex-direction: column; justify-content: space-between; }
+    .hero-main::after {
+      content: "";
+      position: absolute;
+      width: 210px; height: 210px;
+      right: 34px; bottom: 30px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, var(--butter), #d8855c 45%, var(--accent-dark) 46%, var(--accent-dark) 53%, transparent 54%);
+      opacity: .2;
+    }
+    .kicker { color: var(--accent-dark); font-weight: 900; text-transform: uppercase; letter-spacing: .16em; font-size: 11px; }
+    .hero-main h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(46px, 8.5vw, 108px); line-height: .84; margin: 14px 0 20px; letter-spacing: -.075em; max-width: 880px; position: relative; z-index: 1; }
+    .hero-main p { color: var(--muted); max-width: 660px; line-height: 1.55; font-size: 16px; position: relative; z-index: 1; }
+    .hero-chips { display:flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; position: relative; z-index: 1; }
+    .chip { border: 1px solid var(--line); background: rgba(255,255,255,.3); color: var(--muted); padding: 8px 11px; border-radius: 999px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; font-weight: 800; }
+
+    .stats { padding: 16px; display:grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: var(--paper-2); }
+    .stat { border: 1px solid rgba(30,27,23,.13); border-radius: 16px; padding: 18px; background: rgba(255,250,241,.52); min-height: 128px; display:flex; flex-direction:column; justify-content:space-between; }
+    .stat small { color: var(--muted); display: block; margin-bottom: 12px; text-transform: uppercase; font-size: 11px; letter-spacing:.08em; font-weight: 900; }
+    .stat strong { font-family: var(--serif); font-weight: 500; font-size: 36px; letter-spacing: -.06em; line-height: .95; }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin: 22px 0; }
+    .searchbar { flex: 1 1 280px; display: flex; gap: 10px; }
+    .searchbar input, select, textarea, input[type="text"], input[type="number"], input[type="date"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 12px 14px;
+      background: rgba(255,250,241,.75);
+      color: var(--ink);
+      outline: none;
+      font-family: var(--font);
+    }
+    textarea { border-radius: 18px !important; }
+    select { min-width: 170px; }
+    option { color: var(--ink); }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-bottom: 48px; }
+    .coffee { padding: 18px; position: relative; min-height: 292px; display:flex; flex-direction:column; gap: 14px; background: var(--paper); transition: .18s ease; }
+    .coffee:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(30,27,23,.08); }
+    .coffee-top { display:flex; justify-content:space-between; gap: 12px; align-items:flex-start; }
+    .origin { font-size: 34px; width: 68px; height: 68px; border-radius: 50%; background: var(--paper-2); display:grid; place-items:center; border:1px solid var(--line); }
+    .rating { color: var(--paper); background: var(--ink); padding: 8px 11px; border-radius: 999px; font-weight: 900; min-width: 58px; text-align:center; }
+    .coffee h3 { margin: 0; font-family: var(--serif); font-size: 30px; font-weight: 500; letter-spacing: -.055em; line-height: .95; }
+    .meta { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .profile { display:grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top:auto; }
+    .profile div { background: rgba(238,228,210,.65); border:1px solid var(--line); border-radius: 14px; padding: 9px; text-align:center; }
+    .profile small { display:block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing:.08em; font-weight:900; }
+    .profile b { font-size: 13px; letter-spacing:-.08em; color: var(--accent-dark); }
+    .tags { display:flex; flex-wrap:wrap; gap: 7px; }
+    .tag { color: var(--green); background: rgba(108,128,102,.11); border:1px solid rgba(108,128,102,.24); padding:5px 8px; border-radius:999px; font-size:12px; }
+    .coffee-actions { display:flex; gap: 8px; margin-top: 6px; }
+    .coffee-actions button { padding: 8px 10px; font-size: 11px; }
+
+    dialog {
+      width: min(760px, calc(100% - 28px));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--paper);
+      color: var(--ink);
+      box-shadow: 0 35px 100px rgba(30,27,23,.35);
+      padding: 0;
+    }
+    dialog::backdrop { background: rgba(30,27,23,.36); backdrop-filter: blur(8px); }
+    .modal-head { padding: 20px 22px; border-bottom: 1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap: 12px; background: var(--paper-2); }
+    .modal-head h2 { margin:0; letter-spacing:-.05em; font-family: var(--serif); font-weight:500; font-size: 34px; }
+    form { padding: 22px; display:grid; gap: 16px; }
+    .form-grid { display:grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+    label { display:grid; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing:.08em; }
+    textarea { min-height: 92px; resize: vertical; }
+    .range-grid { display:grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .range-row { background: var(--paper-2); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+    .range-row span { display:flex; justify-content:space-between; color: var(--muted); font-size: 12px; font-weight: 800; margin-bottom: 8px; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .modal-actions { display:flex; justify-content:flex-end; gap: 10px; padding-top: 8px; }
+
+    .empty { text-align:center; padding: 42px 20px; color: var(--muted); grid-column: 1 / -1; }
+    footer { color: var(--muted); text-align:center; padding: 32px 0 46px; border-top: 1px solid var(--line); }
+
+    @media (max-width: 920px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(2,1fr); }
+      .nav { align-items:flex-start; flex-direction:column; }
+      .actions { justify-content:flex-start; }
+    }
+    @media (max-width: 640px) {
+      .wrap { width: min(100% - 22px, 1180px); }
+      header { padding-top: 14px; }
+      .grid, .stats, .form-grid, .range-grid { grid-template-columns: 1fr; }
+      .toolbar { align-items:stretch; }
+      .searchbar { flex-direction:column; }
+      button, .file-label { width: 100%; }
+      .hero-main { min-height: 360px; }
+      .hero-main h2 { font-size: 56px; }
+      .profile { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo">☕</div>
+        <div>
+          <h1>Coffee Journal</h1>
+          <p class="subtitle">Una biblioteca personal de cafés, recetas y notas de cata.</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="addBtn">+ Nuevo café</button>
+        <button id="exportBtn">Exportar JSON</button>
+        <label class="file-label" for="importFile">Importar</label>
+        <input id="importFile" type="file" accept="application/json" />
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="card hero-main">
+          <div class="kicker">Carlos Coffee Library</div>
+          <h2>Una biblioteca personal para guardar cada taza que vale la pena recordar.</h2>
+          <p>Registrá origen, preparación, notas y puntuación en un espacio limpio, hecho para comparar cafés sin ruido ni suscripciones.</p>
+          <div class="hero-chips">
+            <span class="chip">AeroPress</span>
+            <span class="chip">Espresso</span>
+            <span class="chip">Moka</span>
+            <span class="chip">Origen</span>
+            <span class="chip">Ranking</span>
+          </div>
+        </div>
+        <div class="card stats">
+          <div class="stat"><small>Cafés registrados</small><strong id="statTotal">0</strong></div>
+          <div class="stat"><small>Promedio</small><strong id="statAvg">0.0</strong></div>
+          <div class="stat"><small>Favoritos</small><strong id="statFavs">0</strong></div>
+          <div class="stat"><small>Mejor café</small><strong id="statBest">—</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <div class="searchbar">
+        <input id="searchInput" type="text" placeholder="Buscar por café, origen o notas..." />
+        <select id="methodFilter">
+          <option value="">Todos los métodos</option>
+          <option>AeroPress</option>
+          <option>Espresso</option>
+          <option>Moka</option>
+          <option>French Press</option>
+          <option>V60</option>
+        </select>
+        <select id="originFilter">
+          <option value="">Todos los países</option>
+        </select>
+      </div>
+      <button class="ghost-danger" id="resetBtn">Restaurar demo</button>
+    </section>
+
+    <section class="grid" id="coffeeGrid"></section>
+  </main>
+
+  <dialog id="coffeeDialog">
+    <div class="modal-head">
+      <h2 id="modalTitle">Nuevo café</h2>
+      <button id="closeDialog" type="button">Cerrar</button>
+    </div>
+    <form id="coffeeForm">
+      <input type="hidden" id="coffeeId" />
+      <div class="form-grid">
+        <label>Nombre<input id="name" required type="text" placeholder="Finca San Andrés Pacamara" /></label>
+        <label>País / origen<input id="origin" type="text" placeholder="El Salvador" /></label>
+        <label>Bandera / emoji<input id="flag" type="text" maxlength="4" placeholder="🇸🇻" /></label>
+        <label>Método favorito<select id="method"><option>AeroPress</option><option>Espresso</option><option>Moka</option><option>French Press</option><option>V60</option><option>Otro</option></select></label>
+        <label>Variedad<input id="variety" type="text" placeholder="Pacamara, Arábica, blend..." /></label>
+        <label>Proceso<input id="process" type="text" placeholder="Lavado, natural, honey..." /></label>
+        <label>Tueste<select id="roast"><option>Claro</option><option>Medio</option><option>Medio-oscuro</option><option>Oscuro</option><option>No sé</option></select></label>
+        <label>Fecha de apertura<input id="date" type="date" /></label>
+        <label>Dosis<input id="dose" type="text" placeholder="15 g" /></label>
+        <label>Agua / bebida<input id="water" type="text" placeholder="200 ml / espresso 1:2" /></label>
+        <label>Temperatura<input id="temp" type="text" placeholder="84 °C" /></label>
+        <label>Tiempo<input id="time" type="text" placeholder="1:30" /></label>
+      </div>
+
+      <div class="range-grid">
+        <div class="range-row"><span>Aroma <b id="aromaVal">3</b></span><input id="aroma" type="range" min="1" max="5" step="1" value="3" /></div>
+        <div class="range-row"><span>Acidez <b id="acidityVal">3</b></span><input id="acidity" type="range" min="1" max="5" step="1" value="3" /></div>
+        <div class="range-row"><span>Dulzor <b id="sweetnessVal">3</b></span><input id="sweetness" type="range" min="1" max="5" step="1" value="3" /></div>
+        <div class="range-row"><span>Cuerpo <b id="bodyVal">3</b></span><input id="body" type="range" min="1" max="5" step="1" value="3" /></div>
+        <div class="range-row"><span>Amargor <b id="bitternessVal">3</b></span><input id="bitterness" type="range" min="1" max="5" step="1" value="3" /></div>
+        <div class="range-row"><span>Balance <b id="balanceVal">3</b></span><input id="balance" type="range" min="1" max="5" step="1" value="3" /></div>
+      </div>
+
+      <div class="form-grid">
+        <label>Puntuación /10<input id="rating" required type="number" min="0" max="10" step="0.1" placeholder="9.1" /></label>
+        <label>¿Lo volverías a comprar?<select id="rebuy"><option value="true">Sí</option><option value="false">No</option><option value="maybe">Tal vez</option></select></label>
+      </div>
+
+      <label>Notas de sabor<textarea id="notes" placeholder="Chocolate, cítricos, panela, especias..."></textarea></label>
+      <label>Comentarios<textarea id="comments" placeholder="Qué te gustó, cuándo lo tomarías, ajustes para próxima receta..."></textarea></label>
+
+      <div class="modal-actions">
+        <button type="button" id="deleteBtn" class="ghost-danger">Eliminar</button>
+        <button type="submit" class="primary">Guardar café</button>
+      </div>
+    </form>
+  </dialog>
+
+  <footer>
+    Coffee Journal · Biblioteca personal de cafés · Datos guardados localmente en este navegador.
+  </footer>
+
+  <script>
+    const STORAGE_KEY = "carlosCoffeeVault.v1";
+
+    const demoCoffees = [
+      {
+        id: crypto.randomUUID(), name: "illy Etiopía", origin: "Etiopía", flag: "🇪🇹", method: "AeroPress", variety: "Arábica", process: "No especificado", roast: "Medio", date: "", dose: "15 g", water: "200 ml", temp: "84 °C", time: "1:15", aroma: 4, acidity: 4, sweetness: 3, body: 3, bitterness: 2, balance: 4, rating: 8.9, rebuy: "true", notes: "Floral, cítrico, elegante", comments: "Buen café para AeroPress cuando quiero algo aromático."
+      },
+      {
+        id: crypto.randomUUID(), name: "Lavazza Super Crema", origin: "Blend", flag: "🌍", method: "Espresso", variety: "Blend", process: "No especificado", roast: "Medio", date: "", dose: "18 g", water: "1:2", temp: "", time: "25-30 s", aroma: 3, acidity: 2, sweetness: 3, body: 4, bitterness: 3, balance: 4, rating: 8.5, rebuy: "true", notes: "Chocolate, crema, balanceado", comments: "Muy buen diario para espresso y bebidas con leche."
+      },
+      {
+        id: crypto.randomUUID(), name: "Monsooned Malabar / Indian Monsoon", origin: "India", flag: "🇮🇳", method: "Espresso", variety: "Arábica", process: "Monsooned", roast: "Medio-oscuro", date: "", dose: "18 g", water: "1:2", temp: "", time: "", aroma: 4, acidity: 1, sweetness: 3, body: 5, bitterness: 3, balance: 4, rating: 9.0, rebuy: "maybe", notes: "Baja acidez, especias, madera, cuerpo alto", comments: "Perfil distinto, ideal para comparar contra cafés más frutales."
+      },
+      {
+        id: crypto.randomUUID(), name: "Finca San Andrés Pacamara", origin: "El Salvador", flag: "🇸🇻", method: "AeroPress", variety: "Pacamara", process: "No especificado", roast: "Medio", date: "", dose: "15 g", water: "200 ml", temp: "84 °C", time: "1:30", aroma: 4, acidity: 3, sweetness: 4, body: 4, bitterness: 2, balance: 5, rating: 9.2, rebuy: "true", notes: "Dulce, cacao, frutas maduras", comments: "Café de origen local para tener como referencia."
+      },
+      {
+        id: crypto.randomUUID(), name: "Café Bustelo", origin: "Blend", flag: "🌍", method: "Moka", variety: "Blend", process: "No especificado", roast: "Oscuro", date: "", dose: "", water: "", temp: "", time: "", aroma: 3, acidity: 1, sweetness: 2, body: 4, bitterness: 4, balance: 3, rating: 7.8, rebuy: "maybe", notes: "Tradicional, intenso, oscuro", comments: "Buen café de referencia para perfil fuerte y clásico."
+      },
+      {
+        id: crypto.randomUUID(), name: "Death Wish", origin: "Blend", flag: "🌍", method: "Moka", variety: "Blend", process: "No especificado", roast: "Oscuro", date: "", dose: "", water: "", temp: "", time: "", aroma: 3, acidity: 1, sweetness: 2, body: 5, bitterness: 4, balance: 3, rating: 8.0, rebuy: "maybe", notes: "Muy intenso, alto cuerpo", comments: "Para días que quiero algo más fuerte."
+      },
+      {
+        id: crypto.randomUUID(), name: "illy Forte Extra Dark", origin: "Blend", flag: "🌍", method: "AeroPress", variety: "Arábica", process: "No especificado", roast: "Oscuro", date: "", dose: "15 g", water: "200 ml", temp: "82 °C", time: "1:15", aroma: 3, acidity: 1, sweetness: 2, body: 4, bitterness: 4, balance: 3, rating: 0, rebuy: "maybe", notes: "Pendiente: chocolate oscuro, tostado, intenso", comments: "Wishlist / pendiente de probar."
+      }
+    ];
+
+    let coffees = loadCoffees();
+    const grid = document.getElementById('coffeeGrid');
+    const dialog = document.getElementById('coffeeDialog');
+    const form = document.getElementById('coffeeForm');
+    const fields = ['coffeeId','name','origin','flag','method','variety','process','roast','date','dose','water','temp','time','aroma','acidity','sweetness','body','bitterness','balance','rating','rebuy','notes','comments'];
+
+    function loadCoffees() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(demoCoffees));
+        return demoCoffees;
+      }
+      try { return JSON.parse(saved); } catch { return demoCoffees; }
+    }
+    function saveCoffees() { localStorage.setItem(STORAGE_KEY, JSON.stringify(coffees)); }
+    function stars(value) { return '●'.repeat(Number(value || 0)) + '○'.repeat(5 - Number(value || 0)); }
+    function rebuyLabel(value) { return value === 'true' ? 'Repetiría' : value === 'false' ? 'No repetiría' : 'Tal vez'; }
+
+    function renderOriginOptions(list) {
+      const select = document.getElementById('originFilter');
+      const current = select.value;
+      const origins = [...new Set(list.map(c => c.origin).filter(Boolean))].sort();
+      select.innerHTML = '<option value="">Todos los países</option>' + origins.map(o => `<option>${o}</option>`).join('');
+      select.value = current;
+    }
+
+    function filteredCoffees() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const method = document.getElementById('methodFilter').value;
+      const origin = document.getElementById('originFilter').value;
+      return coffees.filter(c => {
+        const hay = `${c.name} ${c.origin} ${c.variety} ${c.process} ${c.roast} ${c.notes} ${c.comments}`.toLowerCase();
+        return (!q || hay.includes(q)) && (!method || c.method === method) && (!origin || c.origin === origin);
+      }).sort((a,b) => Number(b.rating || 0) - Number(a.rating || 0));
+    }
+
+    function render() {
+      renderOriginOptions(coffees);
+      const list = filteredCoffees();
+      grid.innerHTML = list.length ? list.map(c => `
+        <article class="card coffee">
+          <div class="coffee-top">
+            <div class="origin">${c.flag || '☕'}</div>
+            <div class="rating">${Number(c.rating || 0) ? Number(c.rating).toFixed(1) : '—'}</div>
+          </div>
+          <div>
+            <h3>${escapeHtml(c.name)}</h3>
+            <p class="meta">${escapeHtml(c.origin || 'Origen pendiente')} · ${escapeHtml(c.method || 'Método pendiente')} · ${escapeHtml(c.roast || 'Tueste pendiente')}<br>${escapeHtml(c.variety || '')} ${c.process ? '· ' + escapeHtml(c.process) : ''}</p>
+          </div>
+          <div class="tags">
+            ${(c.notes || '').split(',').slice(0,4).map(n => n.trim()).filter(Boolean).map(n => `<span class="tag">${escapeHtml(n)}</span>`).join('')}
+            <span class="tag">${rebuyLabel(c.rebuy)}</span>
+          </div>
+          <div class="profile">
+            <div><small>Acidez</small><b>${stars(c.acidity)}</b></div>
+            <div><small>Dulzor</small><b>${stars(c.sweetness)}</b></div>
+            <div><small>Cuerpo</small><b>${stars(c.body)}</b></div>
+          </div>
+          <div class="coffee-actions">
+            <button onclick="editCoffee('${c.id}')">Editar</button>
+          </div>
+        </article>`).join('') : `<div class="empty card"><h3>No hay cafés con ese filtro.</h3><p>Probá limpiar la búsqueda o agregar uno nuevo.</p></div>`;
+      updateStats();
+    }
+
+    function updateStats() {
+      const rated = coffees.filter(c => Number(c.rating) > 0);
+      const avg = rated.length ? rated.reduce((s,c) => s + Number(c.rating), 0) / rated.length : 0;
+      const favs = coffees.filter(c => c.rebuy === 'true').length;
+      const best = rated.sort((a,b)=>Number(b.rating)-Number(a.rating))[0];
+      document.getElementById('statTotal').textContent = coffees.length;
+      document.getElementById('statAvg').textContent = avg ? avg.toFixed(1) : '0.0';
+      document.getElementById('statFavs').textContent = favs;
+      document.getElementById('statBest').textContent = best ? best.name.split(' ')[0] : '—';
+    }
+
+    function openNew() {
+      document.getElementById('modalTitle').textContent = 'Nuevo café';
+      form.reset();
+      document.getElementById('coffeeId').value = '';
+      ['aroma','acidity','sweetness','body','bitterness','balance'].forEach(id => { document.getElementById(id).value = 3; updateRangeLabel(id); });
+      document.getElementById('deleteBtn').style.display = 'none';
+      dialog.showModal();
+    }
+
+    window.editCoffee = function(id) {
+      const c = coffees.find(x => x.id === id);
+      if (!c) return;
+      document.getElementById('modalTitle').textContent = 'Editar café';
+      document.getElementById('coffeeId').value = c.id;
+      fields.forEach(f => { if (document.getElementById(f) && f !== 'coffeeId') document.getElementById(f).value = c[f] ?? ''; });
+      ['aroma','acidity','sweetness','body','bitterness','balance'].forEach(updateRangeLabel);
+      document.getElementById('deleteBtn').style.display = 'inline-flex';
+      dialog.showModal();
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const data = {};
+      fields.forEach(f => {
+        const el = document.getElementById(f);
+        if (!el || f === 'coffeeId') return;
+        data[f] = ['aroma','acidity','sweetness','body','bitterness','balance'].includes(f) ? Number(el.value) : el.value;
+      });
+      data.rating = Number(data.rating || 0);
+      const id = document.getElementById('coffeeId').value;
+      if (id) {
+        coffees = coffees.map(c => c.id === id ? { ...c, ...data } : c);
+      } else {
+        coffees.push({ id: crypto.randomUUID(), ...data });
+      }
+      saveCoffees();
+      dialog.close();
+      render();
+    });
+
+    document.getElementById('deleteBtn').addEventListener('click', () => {
+      const id = document.getElementById('coffeeId').value;
+      if (!id) return;
+      if (confirm('¿Eliminar este café de tu biblioteca?')) {
+        coffees = coffees.filter(c => c.id !== id);
+        saveCoffees();
+        dialog.close();
+        render();
+      }
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(coffees, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `coffee-vault-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('importFile').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(reader.result);
+          if (!Array.isArray(imported)) throw new Error('Formato inválido');
+          coffees = imported.map(c => ({ id: c.id || crypto.randomUUID(), ...c }));
+          saveCoffees();
+          render();
+          alert('Coffee Journal importado correctamente.');
+        } catch(err) { alert('No pude importar ese archivo JSON.'); }
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (confirm('Esto reemplazará tus datos locales por la biblioteca inicial. Exportá antes si querés guardar tus cafés.')) {
+        coffees = demoCoffees.map(c => ({...c, id: crypto.randomUUID()}));
+        saveCoffees();
+        render();
+      }
+    });
+
+    ['searchInput','methodFilter','originFilter'].forEach(id => document.getElementById(id).addEventListener('input', render));
+    document.getElementById('addBtn').addEventListener('click', openNew);
+    document.getElementById('closeDialog').addEventListener('click', () => dialog.close());
+    ['aroma','acidity','sweetness','body','bitterness','balance'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => updateRangeLabel(id));
+    });
+    function updateRangeLabel(id) { document.getElementById(id + 'Val').textContent = document.getElementById(id).value; }
+    function escapeHtml(str) { return String(str || '').replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
+
+    render();
+  </script>
+</body>
+</html>

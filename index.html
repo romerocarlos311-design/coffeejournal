@@ -7,7 +7,7 @@
   <style>
     :root {
       --bg: #f6f1e7; --paper: #fffaf1; --paper-2: #eee4d2; --ink: #1e1b17;
-      --muted: #6f675d; --soft: #9c9285; --line: #d8cdbc; --accent: #c54f2c;
+      --muted: #6f675d; --line: #d8cdbc; --accent: #c54f2c;
       --accent-dark: #7e2f1f; --green: #6c8066; --butter: #ead49a; --danger: #a43d2e;
       --radius: 18px;
       --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -18,22 +18,22 @@
     body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--ink); min-height: 100vh; }
     body::before {
       content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .42;
-      background: linear-gradient(90deg, rgba(30,27,23,.035) 1px, transparent 1px) 0 0 / 44px 44px,
-                  linear-gradient(rgba(30,27,23,.026) 1px, transparent 1px) 0 0 / 44px 44px;
-      mask-image: linear-gradient(to bottom, black, transparent 70%);
+      background: linear-gradient(90deg,rgba(30,27,23,.035) 1px,transparent 1px) 0 0/44px 44px,
+                  linear-gradient(rgba(30,27,23,.026) 1px,transparent 1px) 0 0/44px 44px;
+      mask-image: linear-gradient(to bottom,black,transparent 70%);
     }
-    .wrap { width: min(1180px, calc(100% - 32px)); margin: 0 auto; position: relative; }
-    header {
-      padding: 18px 0; position: sticky; top: 0; z-index: 10;
-      backdrop-filter: blur(16px); background: rgba(246,241,231,.86);
-      border-bottom: 1px solid var(--line);
-    }
+    .wrap { width: min(1180px,calc(100% - 32px)); margin: 0 auto; position: relative; }
+
+    /* ── Header ── */
+    header { padding: 18px 0; position: sticky; top: 0; z-index: 20; backdrop-filter: blur(16px); background: rgba(246,241,231,.88); border-bottom: 1px solid var(--line); }
     .nav { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
     .brand { display: flex; align-items: center; gap: 12px; }
     .logo { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--paper); font-size: 20px; }
-    h1 { margin: 0; font-size: clamp(24px, 4vw, 40px); letter-spacing: -.05em; font-family: var(--serif); font-weight: 500; }
+    h1 { margin: 0; font-size: clamp(22px,4vw,38px); letter-spacing: -.05em; font-family: var(--serif); font-weight: 500; }
     .subtitle { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
+    /* ── Buttons ── */
     button, .file-label {
       border: 1px solid var(--ink); color: var(--ink); background: transparent;
       padding: 10px 14px; border-radius: 999px; cursor: pointer; font-weight: 800;
@@ -48,77 +48,131 @@
     .ghost-danger:hover { background: var(--danger); color: var(--paper); }
     input[type="file"] { display: none; }
 
+    /* ── FAB (mobile floating add button) ── */
+    .fab {
+      display: none;
+      position: fixed; bottom: 24px; right: 24px; z-index: 30;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--accent); color: var(--paper); border: none;
+      font-size: 26px; font-weight: 400; cursor: pointer;
+      box-shadow: 0 6px 24px rgba(197,79,44,.45);
+      align-items: center; justify-content: center;
+      transition: .18s ease;
+    }
+    .fab:hover { background: var(--ink); transform: scale(1.08); }
+
+    /* ── Hero ── */
     .hero { padding: 42px 0 26px; }
     .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; align-items: stretch; }
     .card { border: 1px solid var(--line); background: rgba(255,250,241,.72); border-radius: var(--radius); overflow: hidden; }
-    .hero-main { padding: clamp(24px, 5vw, 54px); position: relative; min-height: 320px; display: flex; flex-direction: column; justify-content: space-between; }
+    .hero-main { padding: clamp(24px,5vw,54px); position: relative; min-height: 300px; display: flex; flex-direction: column; justify-content: space-between; }
     .hero-main::after {
       content: ""; position: absolute; width: 210px; height: 210px; right: 34px; bottom: 30px; border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, var(--butter), #d8855c 45%, var(--accent-dark) 46%, var(--accent-dark) 53%, transparent 54%);
+      background: radial-gradient(circle at 35% 35%,var(--butter),#d8855c 45%,var(--accent-dark) 46%,var(--accent-dark) 53%,transparent 54%);
       opacity: .2;
     }
     .kicker { color: var(--accent-dark); font-weight: 900; text-transform: uppercase; letter-spacing: .16em; font-size: 11px; }
-    .hero-main h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(46px, 8.5vw, 108px); line-height: .84; margin: 14px 0 20px; letter-spacing: -.075em; max-width: 880px; position: relative; z-index: 1; }
-    .hero-main p { color: var(--muted); max-width: 660px; line-height: 1.55; font-size: 16px; position: relative; z-index: 1; }
-    .hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; position: relative; z-index: 1; }
+    .hero-main h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(40px,8vw,100px); line-height: .84; margin: 14px 0 20px; letter-spacing: -.075em; position: relative; z-index: 1; }
+    .hero-main p { color: var(--muted); max-width: 660px; line-height: 1.55; font-size: 15px; position: relative; z-index: 1; margin: 0; }
+    .hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; position: relative; z-index: 1; }
     .chip { border: 1px solid var(--line); background: rgba(255,255,255,.3); color: var(--muted); padding: 8px 11px; border-radius: 999px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; font-weight: 800; }
+    .stats { padding: 16px; display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; background: var(--paper-2); }
+    .stat { border: 1px solid rgba(30,27,23,.13); border-radius: 16px; padding: 18px; background: rgba(255,250,241,.52); min-height: 110px; display: flex; flex-direction: column; justify-content: space-between; }
+    .stat small { color: var(--muted); display: block; margin-bottom: 8px; text-transform: uppercase; font-size: 11px; letter-spacing: .08em; font-weight: 900; }
+    .stat strong { font-family: var(--serif); font-weight: 500; font-size: 34px; letter-spacing: -.06em; line-height: .95; }
 
-    .stats { padding: 16px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: var(--paper-2); }
-    .stat { border: 1px solid rgba(30,27,23,.13); border-radius: 16px; padding: 18px; background: rgba(255,250,241,.52); min-height: 128px; display: flex; flex-direction: column; justify-content: space-between; }
-    .stat small { color: var(--muted); display: block; margin-bottom: 12px; text-transform: uppercase; font-size: 11px; letter-spacing: .08em; font-weight: 900; }
-    .stat strong { font-family: var(--serif); font-weight: 500; font-size: 36px; letter-spacing: -.06em; line-height: .95; }
-
-    .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin: 22px 0; }
-    .searchbar { flex: 1 1 280px; display: flex; gap: 10px; }
+    /* ── Toolbar ── */
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin: 22px 0; }
+    .searchbar { flex: 1 1 240px; display: flex; gap: 10px; flex-wrap: wrap; }
     .searchbar input, select, textarea, input[type="text"], input[type="number"], input[type="date"] {
-      width: 100%; border: 1px solid var(--line); border-radius: 999px; padding: 12px 14px;
+      width: 100%; border: 1px solid var(--line); border-radius: 999px; padding: 11px 14px;
       background: rgba(255,250,241,.75); color: var(--ink); outline: none; font-family: var(--font); font-size: 14px;
     }
     textarea { border-radius: 18px !important; }
-    select { min-width: 160px; }
+    select { min-width: 150px; appearance: auto; }
     option { color: var(--ink); }
+    .toolbar-right { display: flex; gap: 8px; align-items: center; }
 
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-bottom: 48px; }
-    .coffee { padding: 18px; position: relative; display: flex; flex-direction: column; gap: 12px; background: var(--paper); transition: .18s ease; }
-    .coffee:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(30,27,23,.08); }
+    /* ── Card grid ── */
+    .grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; padding-bottom: 80px; }
+    .coffee { padding: 18px; display: flex; flex-direction: column; gap: 11px; background: var(--paper); transition: .18s ease; cursor: pointer; }
+    .coffee:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(30,27,23,.09); }
     .coffee-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
-    .origin-flag { font-size: 34px; width: 68px; height: 68px; border-radius: 50%; background: var(--paper-2); display: grid; place-items: center; border: 1px solid var(--line); flex-shrink: 0; }
-    .avg-rating { color: var(--paper); background: var(--ink); padding: 8px 11px; border-radius: 999px; font-weight: 900; min-width: 58px; text-align: center; font-size: 15px; }
-    .coffee h3 { margin: 0; font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -.055em; line-height: .95; }
-    .meta { color: var(--muted); font-size: 13px; line-height: 1.45; margin: 0; }
-    .profile { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; }
-    .profile div { background: rgba(238,228,210,.65); border: 1px solid var(--line); border-radius: 12px; padding: 8px; text-align: center; }
-    .profile small { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: 900; }
-    .profile b { font-size: 12px; letter-spacing: -.04em; color: var(--accent-dark); }
-    .degusts { display: flex; flex-wrap: wrap; gap: 6px; }
-    .degust-chip {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: rgba(197,79,44,.09); border: 1px solid rgba(197,79,44,.25);
-      color: var(--accent-dark); padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
-    }
-    .degust-chip .d-score { background: var(--accent); color: var(--paper); border-radius: 999px; padding: 1px 6px; font-size: 11px; font-weight: 900; }
+    .origin-flag { font-size: 32px; width: 62px; height: 62px; border-radius: 50%; background: var(--paper-2); display: grid; place-items: center; border: 1px solid var(--line); flex-shrink: 0; }
+    .avg-rating { color: var(--paper); background: var(--ink); padding: 7px 11px; border-radius: 999px; font-weight: 900; min-width: 54px; text-align: center; font-size: 14px; }
+    .coffee h3 { margin: 0; font-family: var(--serif); font-size: 26px; font-weight: 500; letter-spacing: -.055em; line-height: .95; }
+    .meta { color: var(--muted); font-size: 12px; line-height: 1.45; margin: 0; }
+    .roaster-line { color: var(--accent-dark); font-size: 12px; font-weight: 700; margin: 0; }
+    .degusts { display: flex; flex-wrap: wrap; gap: 5px; }
+    .degust-chip { display: inline-flex; align-items: center; gap: 4px; background: rgba(197,79,44,.09); border: 1px solid rgba(197,79,44,.25); color: var(--accent-dark); padding: 4px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .degust-chip .d-score { background: var(--accent); color: var(--paper); border-radius: 999px; padding: 1px 5px; font-size: 10px; font-weight: 900; }
     .degust-chip.no-score { background: rgba(111,103,93,.08); border-color: rgba(111,103,93,.2); color: var(--muted); }
-    .rebuy-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+    .rebuy-badge { font-size: 11px; color: var(--muted); }
     .rebuy-badge.yes { color: var(--green); }
     .rebuy-badge.no { color: var(--danger); }
-    .coffee-actions { display: flex; gap: 8px; margin-top: 4px; }
-    .coffee-actions button { padding: 8px 10px; font-size: 11px; }
+    .coffee-actions { display: flex; gap: 7px; margin-top: 2px; }
+    .coffee-actions button { padding: 7px 10px; font-size: 11px; }
 
+    /* ── Radar SVG ── */
+    .radar-wrap { display: flex; justify-content: center; align-items: center; }
+    .radar-wrap svg { overflow: visible; }
+
+    /* ── Detail panel (slide-in) ── */
+    .detail-overlay {
+      position: fixed; inset: 0; z-index: 40;
+      background: rgba(30,27,23,.36); backdrop-filter: blur(8px);
+      opacity: 0; pointer-events: none; transition: opacity .22s ease;
+    }
+    .detail-overlay.open { opacity: 1; pointer-events: all; }
+    .detail-panel {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 41;
+      width: min(520px, 100vw);
+      background: var(--paper); border-left: 1px solid var(--line);
+      display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform .26s cubic-bezier(.22,1,.36,1);
+      overflow: hidden;
+    }
+    .detail-panel.open { transform: translateX(0); }
+    .detail-head {
+      padding: 20px 22px; border-bottom: 1px solid var(--line);
+      background: var(--paper-2); flex-shrink: 0;
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+    }
+    .detail-head-info { flex: 1; min-width: 0; }
+    .detail-flag { font-size: 28px; }
+    .detail-name { font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -.04em; line-height: 1; margin: 4px 0 2px; }
+    .detail-roaster { color: var(--accent-dark); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .detail-meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .detail-avg { font-family: var(--serif); font-size: 44px; font-weight: 500; letter-spacing: -.06em; color: var(--accent); line-height: 1; }
+    .detail-body { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 22px; display: grid; gap: 20px; }
+    .detail-section-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .1em; color: var(--accent-dark); border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 10px; }
+    .detail-degusts { display: grid; gap: 10px; }
+    .detail-degust { background: var(--paper-2); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+    .detail-degust-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .detail-degust-drink { font-weight: 800; font-size: 13px; }
+    .detail-degust-score { background: var(--ink); color: var(--paper); border-radius: 999px; padding: 3px 10px; font-size: 13px; font-weight: 900; }
+    .detail-degust-date { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
+    .detail-degust-notes { color: var(--accent-dark); font-size: 12px; font-style: italic; margin-bottom: 4px; }
+    .detail-degust-comments { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .detail-actions { padding: 16px 22px; border-top: 1px solid var(--line); display: flex; gap: 10px; flex-shrink: 0; background: var(--paper); }
+
+    /* ── Edit/Add modal ── */
     dialog {
-      width: min(780px, calc(100% - 28px)); max-height: calc(100dvh - 32px);
+      width: min(780px,calc(100% - 28px)); max-height: calc(100dvh - 32px);
       border: 1px solid var(--line); border-radius: 24px; background: var(--paper);
       color: var(--ink); box-shadow: 0 35px 100px rgba(30,27,23,.35);
       padding: 0; overflow: hidden;
     }
     dialog[open] { display: flex; flex-direction: column; }
     dialog::backdrop { background: rgba(30,27,23,.36); backdrop-filter: blur(8px); }
-    .modal-head { padding: 20px 22px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--paper-2); flex-shrink: 0; }
-    .modal-head h2 { margin: 0; letter-spacing: -.05em; font-family: var(--serif); font-weight: 500; font-size: 30px; }
-    .modal-body { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1 1 auto; padding: 22px; display: grid; gap: 20px; }
+    .modal-head { padding: 18px 22px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--paper-2); flex-shrink: 0; }
+    .modal-head h2 { margin: 0; letter-spacing: -.05em; font-family: var(--serif); font-weight: 500; font-size: 28px; }
+    .modal-body { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 22px; display: grid; gap: 20px; }
     .section-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .1em; color: var(--accent-dark); border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 12px; }
     .form-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+    .form-grid.cols3 { grid-template-columns: repeat(3,1fr); }
     label { display: grid; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
-    textarea { min-height: 76px; resize: vertical; }
+    textarea { min-height: 72px; resize: vertical; }
     .range-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
     .range-row { background: var(--paper-2); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
     .range-row span { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; font-weight: 800; margin-bottom: 8px; }
@@ -132,459 +186,583 @@
     .add-degust-btn {
       border: 1px dashed var(--line); color: var(--muted); border-radius: 14px; padding: 12px;
       width: 100%; text-align: center; cursor: pointer; font-size: 12px; font-weight: 800;
-      text-transform: uppercase; letter-spacing: .06em; background: transparent; transition: .15s;
-      display: block;
+      text-transform: uppercase; letter-spacing: .06em; background: transparent; transition: .15s; display: block;
     }
     .add-degust-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(197,79,44,.05); transform: none; }
-    .remove-degust { padding: 5px 9px !important; font-size: 11px !important; color: var(--danger); border-color: var(--danger); }
-    .remove-degust:hover { background: var(--danger); color: var(--paper); }
+    .remove-degust { padding: 5px 9px !important; font-size: 11px !important; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 4px; }
-    .empty { text-align: center; padding: 42px 20px; color: var(--muted); grid-column: 1 / -1; }
+
+    .empty { text-align: center; padding: 42px 20px; color: var(--muted); grid-column: 1/-1; }
     footer { color: var(--muted); text-align: center; padding: 32px 0 46px; border-top: 1px solid var(--line); font-size: 13px; }
 
+    /* ── Responsive ── */
     @media (max-width: 920px) {
       .hero-grid { grid-template-columns: 1fr; }
       .grid { grid-template-columns: repeat(2,1fr); }
       .nav { align-items: flex-start; flex-direction: column; }
       .actions { justify-content: flex-start; }
+      #addBtnHeader { display: none; }
+      .fab { display: flex; }
     }
     @media (max-width: 640px) {
-      .wrap { width: min(100% - 22px, 1180px); }
+      .wrap { width: min(100% - 20px,1180px); }
       header { padding-top: 14px; }
-      .grid, .stats, .form-grid, .range-grid, .degust-fields { grid-template-columns: 1fr; }
+      .grid, .stats, .form-grid, .range-grid, .degust-fields { grid-template-columns: 1fr !important; }
       .toolbar { align-items: stretch; }
       .searchbar { flex-direction: column; }
       .actions button, .actions .file-label { width: 100%; }
-      .hero-main { min-height: 300px; }
-      .hero-main h2 { font-size: 52px; }
-      .profile { grid-template-columns: repeat(3, 1fr); }
+      .hero-main { min-height: 260px; }
+      .hero-main h2 { font-size: 48px; }
       .modal-actions { flex-wrap: wrap; }
       .modal-actions button { flex: 1 1 auto; }
+      .detail-actions { flex-wrap: wrap; }
+      .detail-actions button { flex: 1 1 auto; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="wrap nav">
-      <div class="brand">
-        <div class="logo">&#9749;</div>
-        <div>
-          <h1>Coffee Journal</h1>
-          <p class="subtitle">Una biblioteca personal de caf&eacute;s, perfiles y degustaciones.</p>
-        </div>
-      </div>
-      <div class="actions">
-        <button class="primary" id="addBtn">+ Nuevo caf&eacute;</button>
-        <button id="exportBtn">Exportar JSON</button>
-        <label class="file-label" for="importFile">Importar</label>
-        <input id="importFile" type="file" accept="application/json" />
+
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <div class="logo">&#9749;</div>
+      <div>
+        <h1>Coffee Journal</h1>
+        <p class="subtitle">Una biblioteca personal de caf&eacute;s, perfiles y degustaciones.</p>
       </div>
     </div>
-  </header>
-
-  <main class="wrap">
-    <section class="hero">
-      <div class="hero-grid">
-        <div class="card hero-main">
-          <div class="kicker">Carlos Coffee Library</div>
-          <h2>Una biblioteca personal para guardar cada taza que vale la pena recordar.</h2>
-          <p>Registr&aacute; origen y perfil sensorial del caf&eacute;, y llev&aacute; un registro de tus degustaciones por tipo de bebida. Compar&aacute; c&oacute;mo cambia un mismo grano en espresso, AeroPress o cappuccino.</p>
-          <div class="hero-chips">
-            <span class="chip">Espresso</span>
-            <span class="chip">AeroPress</span>
-            <span class="chip">Cappuccino</span>
-            <span class="chip">Origen</span>
-            <span class="chip">Ranking</span>
-          </div>
-        </div>
-        <div class="card stats">
-          <div class="stat"><small>Caf&eacute;s registrados</small><strong id="statTotal">0</strong></div>
-          <div class="stat"><small>Promedio general</small><strong id="statAvg">0.0</strong></div>
-          <div class="stat"><small>Favoritos</small><strong id="statFavs">0</strong></div>
-          <div class="stat"><small>Mejor caf&eacute;</small><strong id="statBest">&mdash;</strong></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="toolbar">
-      <div class="searchbar">
-        <input id="searchInput" type="text" placeholder="Buscar por caf&eacute;, origen o notas..." />
-        <select id="drinkFilter">
-          <option value="">Todas las bebidas</option>
-          <option>Espresso</option>
-          <option>Cappuccino</option>
-          <option>Flat White</option>
-          <option>Americano</option>
-          <option>AeroPress</option>
-          <option>Moka</option>
-          <option>Pour Over / V60</option>
-          <option>French Press</option>
-          <option>Cold Brew</option>
-          <option>Otro</option>
-        </select>
-        <select id="originFilter">
-          <option value="">Todos los pa&iacute;ses</option>
-        </select>
-      </div>
-      <button class="ghost-danger" id="resetBtn">Restaurar demo</button>
-    </section>
-
-    <section class="grid" id="coffeeGrid"></section>
-  </main>
-
-  <dialog id="coffeeDialog">
-    <div class="modal-head">
-      <h2 id="modalTitle">Nuevo caf&eacute;</h2>
-      <button id="closeDialog" type="button">Cerrar</button>
+    <div class="actions">
+      <button class="primary" id="addBtnHeader">+ Nuevo caf&eacute;</button>
+      <button id="exportBtn">Exportar</button>
+      <label class="file-label" for="importFile">Importar</label>
+      <input id="importFile" type="file" accept="application/json" />
     </div>
-    <div class="modal-body" id="modalBody">
-      <input type="hidden" id="coffeeId" />
+  </div>
+</header>
 
-      <div>
-        <div class="section-label">Datos del caf&eacute;</div>
-        <div class="form-grid">
-          <label>Nombre<input id="name" type="text" placeholder="Finca San Andr&eacute;s Pacamara" /></label>
-          <label>Pa&iacute;s / origen<input id="origin" type="text" placeholder="El Salvador" /></label>
-          <label>Bandera / emoji<input id="flag" type="text" maxlength="4" placeholder="&#127480;&#127483;" /></label>
-          <label>Variedad<input id="variety" type="text" placeholder="Pacamara, Ar&aacute;bica, blend..." /></label>
-          <label>Proceso<input id="process" type="text" placeholder="Lavado, natural, honey..." /></label>
-          <label>Tueste<select id="roast"><option>Claro</option><option>Medio</option><option>Medio-oscuro</option><option>Oscuro</option><option>No s&eacute;</option></select></label>
-          <label style="grid-column:1/-1">&iquest;Lo volver&iacute;as a comprar?<select id="rebuy"><option value="true">S&iacute;, lo repetir&iacute;a</option><option value="false">No lo repetir&iacute;a</option><option value="maybe">Tal vez</option></select></label>
+<main class="wrap">
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="card hero-main">
+        <div class="kicker">Carlos Coffee Library</div>
+        <h2>Una biblioteca personal para guardar cada taza que vale la pena recordar.</h2>
+        <p>Registr&aacute; origen, perfil sensorial y degustaciones por tipo de bebida. Compar&aacute; c&oacute;mo cambia un mismo grano en espresso, AeroPress o cappuccino.</p>
+        <div class="hero-chips">
+          <span class="chip">Espresso</span>
+          <span class="chip">AeroPress</span>
+          <span class="chip">Cappuccino</span>
+          <span class="chip">Radar</span>
+          <span class="chip">Ranking</span>
         </div>
       </div>
-
-      <div>
-        <div class="section-label">Perfil sensorial del caf&eacute;</div>
-        <div class="range-grid">
-          <div class="range-row"><span>Aroma <b id="aromaVal">3</b></span><input id="aroma" type="range" min="1" max="5" step="1" value="3" /></div>
-          <div class="range-row"><span>Acidez <b id="acidityVal">3</b></span><input id="acidity" type="range" min="1" max="5" step="1" value="3" /></div>
-          <div class="range-row"><span>Dulzor <b id="sweetnessVal">3</b></span><input id="sweetness" type="range" min="1" max="5" step="1" value="3" /></div>
-          <div class="range-row"><span>Cuerpo <b id="bodyVal">3</b></span><input id="body" type="range" min="1" max="5" step="1" value="3" /></div>
-          <div class="range-row"><span>Amargor <b id="bitternessVal">3</b></span><input id="bitterness" type="range" min="1" max="5" step="1" value="3" /></div>
-          <div class="range-row"><span>Balance <b id="balanceVal">3</b></span><input id="balance" type="range" min="1" max="5" step="1" value="3" /></div>
-        </div>
-      </div>
-
-      <div>
-        <div class="section-label">Degustaciones por bebida</div>
-        <div class="degust-list" id="degustList"></div>
-        <button type="button" class="add-degust-btn" id="addDegustBtn">+ Agregar degustaci&oacute;n</button>
-      </div>
-
-      <div class="modal-actions">
-        <button type="button" id="deleteBtn" class="ghost-danger" style="display:none">Eliminar caf&eacute;</button>
-        <button type="button" id="saveBtn" class="primary">Guardar caf&eacute;</button>
+      <div class="card stats">
+        <div class="stat"><small>Caf&eacute;s registrados</small><strong id="statTotal">0</strong></div>
+        <div class="stat"><small>Promedio general</small><strong id="statAvg">0.0</strong></div>
+        <div class="stat"><small>Favoritos</small><strong id="statFavs">0</strong></div>
+        <div class="stat"><small>Mejor caf&eacute;</small><strong id="statBest">&mdash;</strong></div>
       </div>
     </div>
-  </dialog>
+  </section>
 
-  <footer>
-    Coffee Journal &middot; Biblioteca personal &middot; Datos guardados localmente en este navegador.
-  </footer>
+  <section class="toolbar">
+    <div class="searchbar">
+      <input id="searchInput" type="text" placeholder="Buscar por caf&eacute;, tostador, origen..." />
+      <select id="drinkFilter">
+        <option value="">Todas las bebidas</option>
+        <option>Espresso</option><option>Cappuccino</option><option>Flat White</option>
+        <option>Americano</option><option>AeroPress</option><option>Moka</option>
+        <option>Pour Over / V60</option><option>French Press</option><option>Cold Brew</option><option>Otro</option>
+      </select>
+      <select id="originFilter"><option value="">Todos los pa&iacute;ses</option></select>
+    </div>
+    <div class="toolbar-right">
+      <select id="sortSelect" style="min-width:170px">
+        <option value="rating">Ordenar: mejor rating</option>
+        <option value="recent">Ordenar: m&aacute;s reciente</option>
+        <option value="name">Ordenar: nombre A-Z</option>
+      </select>
+      <button class="ghost-danger" id="resetBtn">Demo</button>
+    </div>
+  </section>
 
-  <script>
-    const STORAGE_KEY = "carlosCoffeeVault.v2";
-    const DRINK_TYPES = ["Espresso","Cappuccino","Flat White","Americano","AeroPress","Moka","Pour Over / V60","French Press","Cold Brew","Otro"];
+  <section class="grid" id="coffeeGrid"></section>
+</main>
 
-    const demoCoffees = [
-      {
-        id: crypto.randomUUID(),
-        name: "illy Etiop\u00eda", origin: "Etiop\u00eda", flag: "\ud83c\uddea\ud83c\uddf9",
-        variety: "Ar\u00e1bica", process: "Lavado", roast: "Medio", rebuy: "true",
-        aroma: 4, acidity: 4, sweetness: 3, body: 3, bitterness: 2, balance: 4,
-        degustations: [
-          { id: crypto.randomUUID(), drink: "AeroPress", rating: 8.9, notes: "Floral, c\u00edtrico, elegante", comments: "Excelente para AeroPress en las ma\u00f1anas." },
-          { id: crypto.randomUUID(), drink: "Espresso", rating: 7.8, notes: "M\u00e1s intenso, pierde algo de floral", comments: "Funciona pero prefiero en AeroPress." }
-        ]
-      },
-      {
-        id: crypto.randomUUID(),
-        name: "Lavazza Super Crema", origin: "Blend", flag: "\ud83c\udf0d",
-        variety: "Blend", process: "No especificado", roast: "Medio", rebuy: "true",
-        aroma: 3, acidity: 2, sweetness: 3, body: 4, bitterness: 3, balance: 4,
-        degustations: [
-          { id: crypto.randomUUID(), drink: "Espresso", rating: 8.5, notes: "Chocolate, crema, balanceado", comments: "Muy buen diario para espresso." },
-          { id: crypto.randomUUID(), drink: "Cappuccino", rating: 9.0, notes: "Crema extra con leche, dulce natural", comments: "Probablemente mejor como cappuccino." }
-        ]
-      },
-      {
-        id: crypto.randomUUID(),
-        name: "Monsooned Malabar", origin: "India", flag: "\ud83c\uddee\ud83c\uddf3",
-        variety: "Ar\u00e1bica", process: "Monsooned", roast: "Medio-oscuro", rebuy: "maybe",
-        aroma: 4, acidity: 1, sweetness: 3, body: 5, bitterness: 3, balance: 4,
-        degustations: [
-          { id: crypto.randomUUID(), drink: "Espresso", rating: 9.0, notes: "Baja acidez, especias, madera, cuerpo alto", comments: "Perfil muy distinto, ideal para explorar." }
-        ]
-      },
-      {
-        id: crypto.randomUUID(),
-        name: "Finca San Andr\u00e9s Pacamara", origin: "El Salvador", flag: "\ud83c\uddf8\ud83c\uddfb",
-        variety: "Pacamara", process: "Natural", roast: "Medio", rebuy: "true",
-        aroma: 4, acidity: 3, sweetness: 4, body: 4, bitterness: 2, balance: 5,
-        degustations: [
-          { id: crypto.randomUUID(), drink: "AeroPress", rating: 9.2, notes: "Dulce, cacao, frutas maduras", comments: "Mi referencia local." },
-          { id: crypto.randomUUID(), drink: "Pour Over / V60", rating: 8.8, notes: "Frutal, limpio, largo retrogusto", comments: "Excelente en V60 tambi\u00e9n." }
-        ]
-      },
-      {
-        id: crypto.randomUUID(),
-        name: "Death Wish", origin: "Blend", flag: "\ud83c\udf0d",
-        variety: "Blend", process: "No especificado", roast: "Oscuro", rebuy: "maybe",
-        aroma: 3, acidity: 1, sweetness: 2, body: 5, bitterness: 4, balance: 3,
-        degustations: [
-          { id: crypto.randomUUID(), drink: "Moka", rating: 8.0, notes: "Muy intenso, alto cuerpo", comments: "Para d\u00edas que quiero algo fuerte." }
-        ]
-      }
-    ];
+<!-- FAB mobile -->
+<button class="fab" id="fabBtn" title="Nuevo caf&eacute;">+</button>
 
-    let coffees = loadCoffees();
-    let currentDegustations = [];
-    const grid = document.getElementById('coffeeGrid');
-    const dialog = document.getElementById('coffeeDialog');
+<!-- Detail panel -->
+<div class="detail-overlay" id="detailOverlay"></div>
+<aside class="detail-panel" id="detailPanel">
+  <div class="detail-head">
+    <div class="detail-head-info">
+      <div class="detail-flag" id="dFlag"></div>
+      <div class="detail-name" id="dName"></div>
+      <div class="detail-roaster" id="dRoaster"></div>
+      <div class="detail-meta" id="dMeta"></div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div class="detail-avg" id="dAvg"></div>
+      <div class="rebuy-badge" id="dRebuy" style="justify-content:flex-end;margin-top:4px"></div>
+    </div>
+  </div>
+  <div class="detail-body">
+    <div>
+      <div class="detail-section-label">Perfil sensorial</div>
+      <div class="radar-wrap" id="dRadar"></div>
+    </div>
+    <div>
+      <div class="detail-section-label">Degustaciones</div>
+      <div class="detail-degusts" id="dDegusts"></div>
+    </div>
+  </div>
+  <div class="detail-actions">
+    <button id="detailEditBtn" class="primary">Editar caf&eacute;</button>
+    <button id="detailCloseBtn">Cerrar</button>
+  </div>
+</aside>
 
-    function loadCoffees() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (!saved) { localStorage.setItem(STORAGE_KEY, JSON.stringify(demoCoffees)); return demoCoffees; }
-      try { return JSON.parse(saved); } catch { return demoCoffees; }
-    }
-    function saveCoffees() { localStorage.setItem(STORAGE_KEY, JSON.stringify(coffees)); }
-    function stars(v) { return '\u25cf'.repeat(Number(v||0)) + '\u25cb'.repeat(5-Number(v||0)); }
-    function rebuyLabel(v) { return v==='true' ? '\u2665\ufe0f Repetir\u00eda' : v==='false' ? '\u2715 No repetir\u00eda' : '\u25cb Tal vez'; }
-    function rebuyClass(v) { return v==='true' ? 'yes' : v==='false' ? 'no' : ''; }
-    function avgRating(degs) {
-      const rated = (degs||[]).filter(d => Number(d.rating) > 0);
-      if (!rated.length) return 0;
-      return rated.reduce((s,d) => s + Number(d.rating), 0) / rated.length;
-    }
-    function escapeHtml(str) {
-      return String(str||'').replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
-    }
+<!-- Edit/Add modal -->
+<dialog id="coffeeDialog">
+  <div class="modal-head">
+    <h2 id="modalTitle">Nuevo caf&eacute;</h2>
+    <button id="closeDialog" type="button">Cerrar</button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="coffeeId" />
 
-    function renderOriginOptions(list) {
-      const sel = document.getElementById('originFilter');
-      const cur = sel.value;
-      const origins = [...new Set(list.map(c=>c.origin).filter(Boolean))].sort();
-      sel.innerHTML = '<option value="">Todos los pa\u00edses</option>' + origins.map(o=>`<option>${o}</option>`).join('');
-      sel.value = cur;
-    }
+    <div>
+      <div class="section-label">Datos del caf&eacute;</div>
+      <div class="form-grid">
+        <label>Nombre<input id="name" type="text" placeholder="Finca San Andr&eacute;s Pacamara" /></label>
+        <label>Tostador / marca<input id="roaster" type="text" placeholder="illy, Lavazza, local..." /></label>
+        <label>Pa&iacute;s / origen<input id="origin" type="text" placeholder="El Salvador" /></label>
+        <label>Bandera / emoji<input id="flag" type="text" maxlength="4" placeholder="&#127480;&#127483;" /></label>
+        <label>Variedad<input id="variety" type="text" placeholder="Pacamara, Ar&aacute;bica..." /></label>
+        <label>Proceso<input id="process" type="text" placeholder="Lavado, natural, honey..." /></label>
+        <label>Tueste<select id="roast"><option>Claro</option><option>Medio</option><option>Medio-oscuro</option><option>Oscuro</option><option>No s&eacute;</option></select></label>
+        <label>Precio pagado<input id="price" type="text" placeholder="$12.50 / 250g" /></label>
+        <label style="grid-column:1/-1">&iquest;Lo volver&iacute;as a comprar?<select id="rebuy"><option value="true">S&iacute;, lo repetir&iacute;a</option><option value="false">No lo repetir&iacute;a</option><option value="maybe">Tal vez</option></select></label>
+      </div>
+    </div>
 
-    function filteredCoffees() {
-      const q = document.getElementById('searchInput').value.toLowerCase().trim();
-      const drink = document.getElementById('drinkFilter').value;
-      const origin = document.getElementById('originFilter').value;
-      return coffees.filter(c => {
-        const allText = `${c.name} ${c.origin} ${c.variety} ${c.process} ${c.roast} ` +
-          (c.degustations||[]).map(d=>`${d.notes||''} ${d.comments||''} ${d.drink||''}`).join(' ');
-        const matchQ = !q || allText.toLowerCase().includes(q);
-        const matchDrink = !drink || (c.degustations||[]).some(d=>d.drink===drink);
-        const matchOrigin = !origin || c.origin===origin;
-        return matchQ && matchDrink && matchOrigin;
-      }).sort((a,b) => avgRating(b.degustations) - avgRating(a.degustations));
-    }
+    <div>
+      <div class="section-label">Perfil sensorial del caf&eacute;</div>
+      <div class="range-grid">
+        <div class="range-row"><span>Aroma <b id="aromaVal">3</b></span><input id="aroma" type="range" min="1" max="5" step="1" value="3" /></div>
+        <div class="range-row"><span>Acidez <b id="acidityVal">3</b></span><input id="acidity" type="range" min="1" max="5" step="1" value="3" /></div>
+        <div class="range-row"><span>Dulzor <b id="sweetnessVal">3</b></span><input id="sweetness" type="range" min="1" max="5" step="1" value="3" /></div>
+        <div class="range-row"><span>Cuerpo <b id="bodyVal">3</b></span><input id="body" type="range" min="1" max="5" step="1" value="3" /></div>
+        <div class="range-row"><span>Amargor <b id="bitternessVal">3</b></span><input id="bitterness" type="range" min="1" max="5" step="1" value="3" /></div>
+        <div class="range-row"><span>Balance <b id="balanceVal">3</b></span><input id="balance" type="range" min="1" max="5" step="1" value="3" /></div>
+      </div>
+    </div>
 
-    function render() {
-      renderOriginOptions(coffees);
-      const list = filteredCoffees();
-      grid.innerHTML = list.length ? list.map(c => {
-        const avg = avgRating(c.degustations);
-        const degs = c.degustations || [];
-        return `
-        <article class="card coffee">
-          <div class="coffee-top">
-            <div class="origin-flag">${escapeHtml(c.flag||'\u2615')}</div>
-            <div class="avg-rating">${avg ? avg.toFixed(1) : '\u2014'}</div>
-          </div>
-          <div>
-            <h3>${escapeHtml(c.name)}</h3>
-            <p class="meta">${escapeHtml(c.origin||'Origen pendiente')} &middot; ${escapeHtml(c.roast||'Tueste pendiente')}<br>${escapeHtml(c.variety||'')}${c.process ? ' &middot; ' + escapeHtml(c.process) : ''}</p>
-          </div>
-          <div class="degusts">
-            ${degs.length ? degs.map(d => `
-              <span class="degust-chip${!Number(d.rating) ? ' no-score' : ''}">
-                ${escapeHtml(d.drink||'Bebida')}${Number(d.rating) ? ' <span class="d-score">'+Number(d.rating).toFixed(1)+'</span>' : ''}
-              </span>`).join('') : '<span style="color:var(--muted);font-size:12px">Sin degustaciones a\u00fan</span>'}
-          </div>
-          <div class="profile">
-            <div><small>Acidez</small><b>${stars(c.acidity)}</b></div>
-            <div><small>Dulzor</small><b>${stars(c.sweetness)}</b></div>
-            <div><small>Cuerpo</small><b>${stars(c.body)}</b></div>
-          </div>
-          <div class="rebuy-badge ${rebuyClass(c.rebuy)}">${rebuyLabel(c.rebuy)}</div>
-          <div class="coffee-actions">
-            <button onclick="editCoffee('${c.id}')">Editar</button>
-          </div>
-        </article>`;
-      }).join('') : `<div class="empty card"><h3>No hay caf\u00e9s con ese filtro.</h3><p>Prob\u00e1 limpiar la b\u00fasqueda o agregar uno nuevo.</p></div>`;
-      updateStats();
-    }
+    <div>
+      <div class="section-label">Degustaciones por bebida</div>
+      <div class="degust-list" id="degustList"></div>
+      <button type="button" class="add-degust-btn" id="addDegustBtn">+ Agregar degustaci&oacute;n</button>
+    </div>
 
-    function updateStats() {
-      const allAvgs = coffees.map(c => avgRating(c.degustations)).filter(v=>v>0);
-      const globalAvg = allAvgs.length ? allAvgs.reduce((s,v)=>s+v,0)/allAvgs.length : 0;
-      const favs = coffees.filter(c=>c.rebuy==='true').length;
-      const best = coffees.filter(c=>avgRating(c.degustations)>0)
-        .sort((a,b)=>avgRating(b.degustations)-avgRating(a.degustations))[0];
-      document.getElementById('statTotal').textContent = coffees.length;
-      document.getElementById('statAvg').textContent = globalAvg ? globalAvg.toFixed(1) : '0.0';
-      document.getElementById('statFavs').textContent = favs;
-      document.getElementById('statBest').textContent = best ? best.name.split(' ')[0] : '\u2014';
-    }
+    <div class="modal-actions">
+      <button type="button" id="deleteBtn" class="ghost-danger" style="display:none">Eliminar</button>
+      <button type="button" id="saveBtn" class="primary">Guardar caf&eacute;</button>
+    </div>
+  </div>
+</dialog>
 
-    /* ---- Degustaciones en modal ---- */
-    function renderDegustList() {
-      const container = document.getElementById('degustList');
-      if (!currentDegustations.length) { container.innerHTML = ''; return; }
-      container.innerHTML = currentDegustations.map((d,i) => `
-        <div class="degust-item">
-          <div class="degust-item-head">
-            <strong>Degustaci\u00f3n ${i+1}</strong>
-            <button type="button" class="remove-degust" onclick="removeDegust(${i})">Quitar</button>
-          </div>
-          <div class="degust-fields">
-            <label>Tipo de bebida
-              <select onchange="updateDegust(${i},'drink',this.value)">
-                ${DRINK_TYPES.map(t=>`<option${t===d.drink?' selected':''}>${t}</option>`).join('')}
-              </select>
-            </label>
-            <label>Puntuaci\u00f3n /10
-              <input type="number" min="0" max="10" step="0.1" placeholder="9.1"
-                value="${escapeHtml(String(d.rating||''))}" oninput="updateDegust(${i},'rating',this.value)" />
-            </label>
-            <label style="grid-column:1/-1">Notas de sabor
-              <input type="text" placeholder="Chocolate, c\u00edtricos, panela..."
-                value="${escapeHtml(d.notes||'')}" oninput="updateDegust(${i},'notes',this.value)" />
-            </label>
-            <label style="grid-column:1/-1">Comentarios
-              <textarea placeholder="\u00bfC\u00f3mo estuvo? \u00bflo repetir\u00edas en este m\u00e9todo?" oninput="updateDegust(${i},'comments',this.value)">${escapeHtml(d.comments||'')}</textarea>
-            </label>
-          </div>
-        </div>`).join('');
-    }
+<footer>
+  Coffee Journal &middot; Biblioteca personal &middot; Datos guardados localmente en este navegador.
+</footer>
 
-    window.updateDegust = function(i, field, value) { currentDegustations[i][field] = value; };
-    window.removeDegust = function(i) { currentDegustations.splice(i,1); renderDegustList(); };
+<script>
+const STORAGE_KEY = "carlosCoffeeVault.v3";
+const DRINK_TYPES = ["Espresso","Cappuccino","Flat White","Americano","AeroPress","Moka","Pour Over / V60","French Press","Cold Brew","Otro"];
+const BASE_FIELDS = ['name','roaster','origin','flag','variety','process','roast','price','rebuy','aroma','acidity','sweetness','body','bitterness','balance'];
+const RANGE_FIELDS = ['aroma','acidity','sweetness','body','bitterness','balance'];
+const RADAR_LABELS = ['Aroma','Acidez','Dulzor','Cuerpo','Amargor','Balance'];
+const RADAR_KEYS   = ['aroma','acidity','sweetness','body','bitterness','balance'];
 
-    document.getElementById('addDegustBtn').addEventListener('click', () => {
-      currentDegustations.push({ id: crypto.randomUUID(), drink: 'Espresso', rating: '', notes: '', comments: '' });
-      renderDegustList();
-    });
+/* ── Demo data ── */
+const demoCoffees = [
+  {
+    id: crypto.randomUUID(), name: "illy Etiop\u00eda", roaster: "illy", origin: "Etiop\u00eda", flag: "\ud83c\uddea\ud83c\uddf9",
+    variety: "Ar\u00e1bica", process: "Lavado", roast: "Medio", price: "$14 / 250g", rebuy: "true",
+    aroma:4, acidity:4, sweetness:3, body:3, bitterness:2, balance:4,
+    createdAt: Date.now() - 86400000*10,
+    degustations: [
+      { id:crypto.randomUUID(), drink:"AeroPress", rating:8.9, date:"2025-05-18", notes:"Floral, c\u00edtrico, elegante", comments:"Excelente para ma\u00f1anas." },
+      { id:crypto.randomUUID(), drink:"Espresso",  rating:7.8, date:"2025-05-20", notes:"Intenso, pierde el floral", comments:"Prefiero en AeroPress." }
+    ]
+  },
+  {
+    id: crypto.randomUUID(), name: "Lavazza Super Crema", roaster: "Lavazza", origin: "Blend", flag: "\ud83c\udf0d",
+    variety: "Blend", process: "No especificado", roast: "Medio", price: "$18 / 1kg", rebuy: "true",
+    aroma:3, acidity:2, sweetness:3, body:4, bitterness:3, balance:4,
+    createdAt: Date.now() - 86400000*5,
+    degustations: [
+      { id:crypto.randomUUID(), drink:"Espresso",   rating:8.5, date:"2025-05-22", notes:"Chocolate, crema, balanceado", comments:"Muy buen diario." },
+      { id:crypto.randomUUID(), drink:"Cappuccino", rating:9.0, date:"2025-05-23", notes:"Crema extra, dulce natural", comments:"Probablemente mejor como cappuccino." }
+    ]
+  },
+  {
+    id: crypto.randomUUID(), name: "Monsooned Malabar", roaster: "Importado", origin: "India", flag: "\ud83c\uddee\ud83c\uddf3",
+    variety: "Ar\u00e1bica", process: "Monsooned", roast: "Medio-oscuro", price: "$22 / 250g", rebuy: "maybe",
+    aroma:4, acidity:1, sweetness:3, body:5, bitterness:3, balance:4,
+    createdAt: Date.now() - 86400000*2,
+    degustations: [
+      { id:crypto.randomUUID(), drink:"Espresso", rating:9.0, date:"2025-05-28", notes:"Especias, madera, cuerpo alto", comments:"Perfil muy distinto, ideal para explorar." }
+    ]
+  },
+  {
+    id: crypto.randomUUID(), name: "Finca San Andr\u00e9s Pacamara", roaster: "Caf\u00e9 de El Salvador", origin: "El Salvador", flag: "\ud83c\uddf8\ud83c\uddfb",
+    variety: "Pacamara", process: "Natural", roast: "Medio", price: "$10 / 250g", rebuy: "true",
+    aroma:4, acidity:3, sweetness:4, body:4, bitterness:2, balance:5,
+    createdAt: Date.now() - 86400000*1,
+    degustations: [
+      { id:crypto.randomUUID(), drink:"AeroPress",    rating:9.2, date:"2025-05-29", notes:"Dulce, cacao, frutas maduras", comments:"Mi referencia local." },
+      { id:crypto.randomUUID(), drink:"Pour Over / V60", rating:8.8, date:"2025-05-30", notes:"Frutal, limpio, retrogusto largo", comments:"Excelente en V60 tambi\u00e9n." }
+    ]
+  },
+  {
+    id: crypto.randomUUID(), name: "Death Wish", roaster: "Death Wish Coffee", origin: "Blend", flag: "\ud83c\udf0d",
+    variety: "Blend", process: "No especificado", roast: "Oscuro", price: "$20 / 283g", rebuy: "maybe",
+    aroma:3, acidity:1, sweetness:2, body:5, bitterness:4, balance:3,
+    createdAt: Date.now() - 86400000*3,
+    degustations: [
+      { id:crypto.randomUUID(), drink:"Moka", rating:8.0, date:"2025-05-27", notes:"Muy intenso, alto cuerpo", comments:"Para d\u00edas que quiero algo fuerte." }
+    ]
+  }
+];
 
-    const BASE_FIELDS = ['name','origin','flag','variety','process','roast','rebuy','aroma','acidity','sweetness','body','bitterness','balance'];
-    const RANGE_FIELDS = ['aroma','acidity','sweetness','body','bitterness','balance'];
+/* ── State ── */
+let coffees = loadCoffees();
+let currentDegustations = [];
+let detailCoffeeId = null;
 
-    function openNew() {
-      document.getElementById('modalTitle').textContent = 'Nuevo caf\u00e9';
-      document.getElementById('coffeeId').value = '';
-      BASE_FIELDS.forEach(f => {
-        const el = document.getElementById(f); if (!el) return;
-        if (RANGE_FIELDS.includes(f)) el.value = 3;
-        else if (f==='rebuy') el.value = 'true';
-        else el.value = '';
-      });
-      RANGE_FIELDS.forEach(updateRangeLabel);
-      currentDegustations = [];
-      renderDegustList();
-      document.getElementById('deleteBtn').style.display = 'none';
-      dialog.showModal();
-    }
+const grid        = document.getElementById('coffeeGrid');
+const dlg         = document.getElementById('coffeeDialog');
+const overlay     = document.getElementById('detailOverlay');
+const detailPanel = document.getElementById('detailPanel');
 
-    window.editCoffee = function(id) {
-      const c = coffees.find(x=>x.id===id); if (!c) return;
-      document.getElementById('modalTitle').textContent = 'Editar caf\u00e9';
-      document.getElementById('coffeeId').value = c.id;
-      BASE_FIELDS.forEach(f => {
-        const el = document.getElementById(f); if (!el) return;
-        el.value = c[f] ?? (RANGE_FIELDS.includes(f) ? 3 : '');
-      });
-      RANGE_FIELDS.forEach(updateRangeLabel);
-      currentDegustations = (c.degustations||[]).map(d=>({...d}));
-      renderDegustList();
-      document.getElementById('deleteBtn').style.display = 'inline-flex';
-      dialog.showModal();
+/* ── Storage ── */
+function loadCoffees() {
+  const s = localStorage.getItem(STORAGE_KEY);
+  if (!s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(demoCoffees)); return demoCoffees; }
+  try { return JSON.parse(s); } catch { return demoCoffees; }
+}
+function saveCoffees() { localStorage.setItem(STORAGE_KEY, JSON.stringify(coffees)); }
+
+/* ── Helpers ── */
+function escapeHtml(s) { return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function avgRating(degs) {
+  const r = (degs||[]).filter(d=>Number(d.rating)>0);
+  return r.length ? r.reduce((s,d)=>s+Number(d.rating),0)/r.length : 0;
+}
+function rebuyLabel(v) { return v==='true'?'\u2665\ufe0f Repetir\u00eda':v==='false'?'\u2715 No repetir\u00eda':'\u25cb Tal vez'; }
+function rebuyClass(v) { return v==='true'?'yes':v==='false'?'no':''; }
+function formatDate(d) {
+  if (!d) return '';
+  try { const [y,m,day]=d.split('-'); return `${day}/${m}/${y}`; } catch { return d; }
+}
+
+/* ── Radar SVG ── */
+function radarSVG(c, size=160) {
+  const cx=size/2, cy=size/2, r=size*0.38, labelR=size*0.5;
+  const vals = RADAR_KEYS.map(k=>Number(c[k]||0)/5);
+  const N=6;
+  function pt(i,frac) {
+    const angle = (Math.PI*2*i/N) - Math.PI/2;
+    return [cx+frac*r*Math.cos(angle), cy+frac*r*Math.sin(angle)];
+  }
+  // grid rings
+  let rings='';
+  [.2,.4,.6,.8,1].forEach(f=>{
+    const pts=Array.from({length:N},(_,i)=>pt(i,f).join(',')).join(' ');
+    rings+=`<polygon points="${pts}" fill="none" stroke="#d8cdbc" stroke-width="1"/>`;
+  });
+  // axes
+  let axes='';
+  for(let i=0;i<N;i++){
+    const [x,y]=pt(i,1);
+    axes+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d8cdbc" stroke-width="1"/>`;
+  }
+  // data polygon
+  const dpts=vals.map((_,i)=>pt(i,vals[i]).join(',')).join(' ');
+  const poly=`<polygon points="${dpts}" fill="rgba(197,79,44,.18)" stroke="#c54f2c" stroke-width="2" stroke-linejoin="round"/>`;
+  // dots
+  const dots=vals.map((_,i)=>{const[x,y]=pt(i,vals[i]);return`<circle cx="${x}" cy="${y}" r="3.5" fill="#c54f2c"/>`;}).join('');
+  // labels
+  const labels=RADAR_LABELS.map((l,i)=>{
+    const [x,y]=pt(i,1.22);
+    return`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="${size*0.085}" font-family="Inter,sans-serif" font-weight="800" fill="#6f675d" text-transform="uppercase">${l}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">${rings}${axes}${poly}${dots}${labels}</svg>`;
+}
+
+/* ── Render cards ── */
+function renderOriginOptions() {
+  const sel=document.getElementById('originFilter'), cur=sel.value;
+  const origs=[...new Set(coffees.map(c=>c.origin).filter(Boolean))].sort();
+  sel.innerHTML='<option value="">Todos los pa\u00edses</option>'+origs.map(o=>`<option>${o}</option>`).join('');
+  sel.value=cur;
+}
+
+function filteredCoffees() {
+  const q=document.getElementById('searchInput').value.toLowerCase().trim();
+  const drink=document.getElementById('drinkFilter').value;
+  const origin=document.getElementById('originFilter').value;
+  const sort=document.getElementById('sortSelect').value;
+  let list=coffees.filter(c=>{
+    const txt=`${c.name} ${c.roaster||''} ${c.origin} ${c.variety||''} ${c.process||''} ${c.roast||''} `+
+      (c.degustations||[]).map(d=>`${d.notes||''} ${d.comments||''} ${d.drink||''}`).join(' ');
+    return (!q||txt.toLowerCase().includes(q))&&
+           (!drink||(c.degustations||[]).some(d=>d.drink===drink))&&
+           (!origin||c.origin===origin);
+  });
+  if(sort==='rating')  list.sort((a,b)=>avgRating(b.degustations)-avgRating(a.degustations));
+  if(sort==='recent')  list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(sort==='name')    list.sort((a,b)=>a.name.localeCompare(b.name));
+  return list;
+}
+
+function render() {
+  renderOriginOptions();
+  const list=filteredCoffees();
+  grid.innerHTML = list.length ? list.map(c=>{
+    const avg=avgRating(c.degustations);
+    const degs=c.degustations||[];
+    return `
+    <article class="card coffee" onclick="openDetail('${c.id}')">
+      <div class="coffee-top">
+        <div class="origin-flag">${escapeHtml(c.flag||'\u2615')}</div>
+        <div class="avg-rating">${avg?avg.toFixed(1):'\u2014'}</div>
+      </div>
+      <div>
+        ${c.roaster?`<p class="roaster-line">${escapeHtml(c.roaster)}</p>`:''}
+        <h3>${escapeHtml(c.name)}</h3>
+        <p class="meta">${escapeHtml(c.origin||'Origen pendiente')} &middot; ${escapeHtml(c.roast||'')}${c.price?` &middot; ${escapeHtml(c.price)}`:''}${c.variety?`<br>${escapeHtml(c.variety)}`:''}${c.process?` &middot; ${escapeHtml(c.process)}`:''}</p>
+      </div>
+      <div class="radar-wrap">${radarSVG(c,130)}</div>
+      <div class="degusts">
+        ${degs.length?degs.map(d=>`
+          <span class="degust-chip${!Number(d.rating)?' no-score':''}">
+            ${escapeHtml(d.drink||'Bebida')}${Number(d.rating)?` <span class="d-score">${Number(d.rating).toFixed(1)}</span>`:''}
+          </span>`).join(''):'<span style="color:var(--muted);font-size:11px">Sin degustaciones</span>'}
+      </div>
+      <div class="rebuy-badge ${rebuyClass(c.rebuy)}">${rebuyLabel(c.rebuy)}</div>
+      <div class="coffee-actions" onclick="event.stopPropagation()">
+        <button onclick="openEdit('${c.id}')">Editar</button>
+      </div>
+    </article>`;
+  }).join('') : `<div class="empty card"><h3>No hay caf\u00e9s con ese filtro.</h3><p>Prob\u00e1 limpiar la b\u00fasqueda o agregar uno nuevo.</p></div>`;
+  updateStats();
+}
+
+function updateStats() {
+  const avgs=coffees.map(c=>avgRating(c.degustations)).filter(v=>v>0);
+  const globalAvg=avgs.length?avgs.reduce((s,v)=>s+v,0)/avgs.length:0;
+  const favs=coffees.filter(c=>c.rebuy==='true').length;
+  const best=coffees.filter(c=>avgRating(c.degustations)>0).sort((a,b)=>avgRating(b.degustations)-avgRating(a.degustations))[0];
+  document.getElementById('statTotal').textContent=coffees.length;
+  document.getElementById('statAvg').textContent=globalAvg?globalAvg.toFixed(1):'0.0';
+  document.getElementById('statFavs').textContent=favs;
+  document.getElementById('statBest').textContent=best?best.name.split(' ')[0]:'\u2014';
+}
+
+/* ── Detail panel ── */
+window.openDetail = function(id) {
+  const c=coffees.find(x=>x.id===id); if(!c) return;
+  detailCoffeeId=id;
+  document.getElementById('dFlag').textContent=c.flag||'\u2615';
+  document.getElementById('dName').textContent=c.name;
+  document.getElementById('dRoaster').textContent=c.roaster||'';
+  document.getElementById('dMeta').textContent=[c.origin,c.roast,c.variety,c.process].filter(Boolean).join(' \u00b7 ')+(c.price?' \u00b7 '+c.price:'');
+  const avg=avgRating(c.degustations);
+  document.getElementById('dAvg').textContent=avg?avg.toFixed(1):'\u2014';
+  document.getElementById('dRebuy').className='rebuy-badge '+rebuyClass(c.rebuy);
+  document.getElementById('dRebuy').textContent=rebuyLabel(c.rebuy);
+  document.getElementById('dRadar').innerHTML=radarSVG(c,200);
+  const degs=c.degustations||[];
+  document.getElementById('dDegusts').innerHTML=degs.length?degs.map(d=>`
+    <div class="detail-degust">
+      <div class="detail-degust-head">
+        <span class="detail-degust-drink">${escapeHtml(d.drink||'Bebida')}</span>
+        ${Number(d.rating)?`<span class="detail-degust-score">${Number(d.rating).toFixed(1)}</span>`:'<span style="color:var(--muted);font-size:12px">Sin puntuaci\u00f3n</span>'}
+      </div>
+      ${d.date?`<div class="detail-degust-date">${formatDate(d.date)}</div>`:''}
+      ${d.notes?`<div class="detail-degust-notes">"${escapeHtml(d.notes)}"</div>`:''}
+      ${d.comments?`<div class="detail-degust-comments">${escapeHtml(d.comments)}</div>`:''}
+    </div>`).join(''):'<p style="color:var(--muted);font-size:13px">Sin degustaciones a\u00fan.</p>';
+  overlay.classList.add('open');
+  detailPanel.classList.add('open');
+};
+
+function closeDetail() {
+  overlay.classList.remove('open');
+  detailPanel.classList.remove('open');
+  detailCoffeeId=null;
+}
+
+document.getElementById('detailCloseBtn').addEventListener('click', closeDetail);
+overlay.addEventListener('click', closeDetail);
+document.getElementById('detailEditBtn').addEventListener('click', ()=>{ closeDetail(); if(detailCoffeeId) openEdit(detailCoffeeId); else openEdit(null); });
+
+/* ── Modal: degust list render ── */
+function renderDegustList() {
+  const container=document.getElementById('degustList');
+  if(!currentDegustations.length){container.innerHTML='';return;}
+  container.innerHTML=currentDegustations.map((d,i)=>`
+    <div class="degust-item">
+      <div class="degust-item-head">
+        <strong>Degustaci\u00f3n ${i+1}</strong>
+        <button type="button" class="ghost-danger remove-degust" onclick="removeDegust(${i})">Quitar</button>
+      </div>
+      <div class="degust-fields">
+        <label>Tipo de bebida
+          <select onchange="updateDegust(${i},'drink',this.value)">
+            ${DRINK_TYPES.map(t=>`<option${t===d.drink?' selected':''}>${t}</option>`).join('')}
+          </select>
+        </label>
+        <label>Puntuaci\u00f3n /10
+          <input type="number" min="0" max="10" step="0.1" placeholder="9.1" value="${escapeHtml(String(d.rating||''))}" oninput="updateDegust(${i},'rating',this.value)" />
+        </label>
+        <label>Fecha<input type="date" value="${escapeHtml(d.date||'')}" oninput="updateDegust(${i},'date',this.value)" /></label>
+        <label>Notas de sabor<input type="text" placeholder="Chocolate, c\u00edtricos..." value="${escapeHtml(d.notes||'')}" oninput="updateDegust(${i},'notes',this.value)" /></label>
+        <label style="grid-column:1/-1">Comentarios<textarea placeholder="\u00bfC\u00f3mo estuvo? \u00bflo repetir\u00edas as\u00ed?" oninput="updateDegust(${i},'comments',this.value)">${escapeHtml(d.comments||'')}</textarea></label>
+      </div>
+    </div>`).join('');
+}
+
+window.updateDegust = function(i,field,value){currentDegustations[i][field]=value;};
+window.removeDegust = function(i){currentDegustations.splice(i,1);renderDegustList();};
+
+document.getElementById('addDegustBtn').addEventListener('click',()=>{
+  currentDegustations.push({id:crypto.randomUUID(),drink:'Espresso',rating:'',date:'',notes:'',comments:''});
+  renderDegustList();
+});
+
+/* ── Modal: open ── */
+function openNew() {
+  document.getElementById('modalTitle').textContent='Nuevo caf\u00e9';
+  document.getElementById('coffeeId').value='';
+  BASE_FIELDS.forEach(f=>{
+    const el=document.getElementById(f); if(!el) return;
+    if(RANGE_FIELDS.includes(f)) el.value=3;
+    else if(f==='rebuy') el.value='true';
+    else el.value='';
+  });
+  RANGE_FIELDS.forEach(updateRangeLabel);
+  currentDegustations=[];
+  renderDegustList();
+  document.getElementById('deleteBtn').style.display='none';
+  dlg.showModal();
+}
+
+window.openEdit = function(id) {
+  const c=coffees.find(x=>x.id===id); if(!c) return;
+  document.getElementById('modalTitle').textContent='Editar caf\u00e9';
+  document.getElementById('coffeeId').value=c.id;
+  BASE_FIELDS.forEach(f=>{
+    const el=document.getElementById(f); if(!el) return;
+    el.value=c[f]??(RANGE_FIELDS.includes(f)?3:'');
+  });
+  RANGE_FIELDS.forEach(updateRangeLabel);
+  currentDegustations=(c.degustations||[]).map(d=>({...d}));
+  renderDegustList();
+  document.getElementById('deleteBtn').style.display='inline-flex';
+  dlg.showModal();
+};
+
+/* ── Modal: save ── */
+document.getElementById('saveBtn').addEventListener('click',()=>{
+  const nameEl=document.getElementById('name');
+  if(!nameEl.value.trim()){nameEl.focus();alert('El nombre del caf\u00e9 es obligatorio.');return;}
+  const data={};
+  BASE_FIELDS.forEach(f=>{
+    const el=document.getElementById(f); if(!el) return;
+    data[f]=RANGE_FIELDS.includes(f)?Number(el.value):el.value;
+  });
+  // Leer degustaciones del DOM (robusto en mobile)
+  const items=document.querySelectorAll('#degustList .degust-item');
+  data.degustations=Array.from(items).map((item,i)=>{
+    const inputs=item.querySelectorAll('input,select,textarea');
+    // select=drink, number=rating, date=date, text=notes, textarea=comments
+    const sel=item.querySelector('select');
+    const num=item.querySelector('input[type="number"]');
+    const dat=item.querySelector('input[type="date"]');
+    const txt=item.querySelector('input[type="text"]');
+    const ta =item.querySelector('textarea');
+    return {
+      id:(currentDegustations[i]&&currentDegustations[i].id)||crypto.randomUUID(),
+      drink:sel?sel.value:'Espresso',
+      rating:num&&num.value!==''?Number(num.value):0,
+      date:dat?dat.value:'',
+      notes:txt?txt.value:'',
+      comments:ta?ta.value:''
     };
+  });
+  const id=document.getElementById('coffeeId').value;
+  if(id){
+    coffees=coffees.map(c=>c.id===id?{...c,...data}:c);
+  } else {
+    coffees.push({id:crypto.randomUUID(),createdAt:Date.now(),...data});
+  }
+  saveCoffees(); dlg.close(); render();
+});
 
-    document.getElementById('saveBtn').addEventListener('click', () => {
-      const nameEl = document.getElementById('name');
-      if (!nameEl.value.trim()) { nameEl.focus(); alert('El nombre del caf\u00e9 es obligatorio.'); return; }
-      const data = {};
-      BASE_FIELDS.forEach(f => {
-        const el = document.getElementById(f); if (!el) return;
-        data[f] = RANGE_FIELDS.includes(f) ? Number(el.value) : el.value;
-      });
+document.getElementById('deleteBtn').addEventListener('click',()=>{
+  const id=document.getElementById('coffeeId').value; if(!id) return;
+  if(confirm('\u00bfEliminar este caf\u00e9 de tu biblioteca?')){
+    coffees=coffees.filter(c=>c.id!==id);
+    saveCoffees(); dlg.close(); render();
+  }
+});
 
-      // Leer degustaciones directo del DOM para evitar problemas con oninput en mobile
-      const items = document.querySelectorAll('#degustList .degust-item');
-      data.degustations = Array.from(items).map((item, i) => {
-        const drinkEl = item.querySelector('select');
-        const ratingEl = item.querySelector('input[type="number"]');
-        const notesEl = item.querySelector('input[type="text"]');
-        const commentsEl = item.querySelector('textarea');
-        return {
-          id: (currentDegustations[i] && currentDegustations[i].id) || crypto.randomUUID(),
-          drink: drinkEl ? drinkEl.value : 'Espresso',
-          rating: ratingEl && ratingEl.value !== '' ? Number(ratingEl.value) : 0,
-          notes: notesEl ? notesEl.value : '',
-          comments: commentsEl ? commentsEl.value : ''
-        };
-      });
+/* ── Export / Import / Reset ── */
+document.getElementById('exportBtn').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify(coffees,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url;
+  a.download=`coffee-vault-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+});
 
-      const id = document.getElementById('coffeeId').value;
-      if (id) {
-        coffees = coffees.map(c => c.id===id ? {...c, ...data} : c);
-      } else {
-        coffees.push({ id: crypto.randomUUID(), ...data });
-      }
-      saveCoffees(); dialog.close(); render();
-    });
+document.getElementById('importFile').addEventListener('change',e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try {
+      const imp=JSON.parse(reader.result);
+      if(!Array.isArray(imp)) throw new Error();
+      coffees=imp.map(c=>({id:c.id||crypto.randomUUID(),...c}));
+      saveCoffees(); render();
+      alert('Coffee Journal importado correctamente.');
+    } catch { alert('No pude importar ese archivo JSON.'); }
+  };
+  reader.readAsText(file);
+});
 
-    document.getElementById('deleteBtn').addEventListener('click', () => {
-      const id = document.getElementById('coffeeId').value; if (!id) return;
-      if (confirm('\u00bfEliminar este caf\u00e9 de tu biblioteca?')) {
-        coffees = coffees.filter(c=>c.id!==id);
-        saveCoffees(); dialog.close(); render();
-      }
-    });
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  if(confirm('Esto reemplazar\u00e1 tus datos por la biblioteca demo. Export\u00e1 antes si quer\u00e9s conservar tus caf\u00e9s.')){
+    coffees=demoCoffees.map(c=>({...c,id:crypto.randomUUID(),degustations:(c.degustations||[]).map(d=>({...d,id:crypto.randomUUID()}))}));
+    saveCoffees(); render();
+  }
+});
 
-    document.getElementById('exportBtn').addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(coffees, null, 2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url;
-      a.download = `coffee-vault-${new Date().toISOString().slice(0,10)}.json`;
-      a.click(); URL.revokeObjectURL(url);
-    });
+/* ── Event listeners ── */
+['searchInput','drinkFilter','originFilter','sortSelect'].forEach(id=>
+  document.getElementById(id).addEventListener('input',render));
+document.getElementById('addBtnHeader').addEventListener('click',openNew);
+document.getElementById('fabBtn').addEventListener('click',openNew);
+document.getElementById('closeDialog').addEventListener('click',()=>dlg.close());
+RANGE_FIELDS.forEach(id=>document.getElementById(id).addEventListener('input',()=>updateRangeLabel(id)));
+function updateRangeLabel(id){document.getElementById(id+'Val').textContent=document.getElementById(id).value;}
 
-    document.getElementById('importFile').addEventListener('change', e => {
-      const file = e.target.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const imported = JSON.parse(reader.result);
-          if (!Array.isArray(imported)) throw new Error();
-          coffees = imported.map(c => ({ id: c.id||crypto.randomUUID(), ...c }));
-          saveCoffees(); render();
-          alert('Coffee Journal importado correctamente.');
-        } catch { alert('No pude importar ese archivo JSON.'); }
-      };
-      reader.readAsText(file);
-    });
+// Cerrar modal con Escape ya lo maneja el browser, pero también cerramos detail
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDetail(); });
 
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      if (confirm('Esto reemplazar\u00e1 tus datos locales por la biblioteca inicial. Export\u00e1 antes si quer\u00e9s guardar tus caf\u00e9s.')) {
-        coffees = demoCoffees.map(c => ({
-          ...c, id: crypto.randomUUID(),
-          degustations: (c.degustations||[]).map(d=>({...d, id: crypto.randomUUID()}))
-        }));
-        saveCoffees(); render();
-      }
-    });
-
-    ['searchInput','drinkFilter','originFilter'].forEach(id => document.getElementById(id).addEventListener('input', render));
-    document.getElementById('addBtn').addEventListener('click', openNew);
-    document.getElementById('closeDialog').addEventListener('click', () => dialog.close());
-    RANGE_FIELDS.forEach(id => document.getElementById(id).addEventListener('input', () => updateRangeLabel(id)));
-    function updateRangeLabel(id) { document.getElementById(id+'Val').textContent = document.getElementById(id).value; }
-
-    render();
-  </script>
+render();
+</script>
 </body>
 </html>

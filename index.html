@@ -4,200 +4,155 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Coffee Journal | Carlos</title>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD1fRkKhxDwn1H5M3GYOyVytYpJ2-WKFS8",
+      authDomain: "coffeejournal-a8a7f.firebaseapp.com",
+      projectId: "coffeejournal-a8a7f",
+      storageBucket: "coffeejournal-a8a7f.firebasestorage.app",
+      messagingSenderId: "722368556101",
+      appId: "1:722368556101:web:8b118c4a259c009ba2c72c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    window._getDocs = getDocs;
+    window._col     = () => collection(db, 'coffees');
+    window._firebaseReady = true;
+    document.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
   <style>
-    :root {
-      --bg: #f6f1e7; --paper: #fffaf1; --paper-2: #eee4d2; --ink: #1e1b17;
-      --muted: #6f675d; --line: #d8cdbc; --accent: #c54f2c;
-      --accent-dark: #7e2f1f; --green: #6c8066; --butter: #ead49a; --danger: #a43d2e;
-      --radius: 18px;
-      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --serif: Georgia, "Times New Roman", serif;
+    :root{
+      --bg:#f6f1e7;--paper:#fffaf1;--paper-2:#eee4d2;--ink:#1e1b17;
+      --muted:#6f675d;--line:#d8cdbc;--accent:#c54f2c;
+      --accent-dark:#7e2f1f;--green:#6c8066;--butter:#ead49a;--danger:#a43d2e;
+      --radius:18px;
+      --font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      --serif:Georgia,"Times New Roman",serif;
     }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--ink); min-height: 100vh; }
-    body::before {
-      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .42;
-      background: linear-gradient(90deg,rgba(30,27,23,.035) 1px,transparent 1px) 0 0/44px 44px,
-                  linear-gradient(rgba(30,27,23,.026) 1px,transparent 1px) 0 0/44px 44px;
-      mask-image: linear-gradient(to bottom,black,transparent 70%);
-    }
-    .wrap { width: min(1180px,calc(100% - 32px)); margin: 0 auto; position: relative; }
+    *{box-sizing:border-box;}html{scroll-behavior:smooth;}
+    body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;}
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.42;
+      background:linear-gradient(90deg,rgba(30,27,23,.035) 1px,transparent 1px) 0 0/44px 44px,
+                 linear-gradient(rgba(30,27,23,.026) 1px,transparent 1px) 0 0/44px 44px;
+      mask-image:linear-gradient(to bottom,black,transparent 70%);}
+    .wrap{width:min(1180px,calc(100% - 32px));margin:0 auto;position:relative;}
 
-    /* ── Header ── */
-    header { padding: 18px 0; position: sticky; top: 0; z-index: 20; backdrop-filter: blur(16px); background: rgba(246,241,231,.88); border-bottom: 1px solid var(--line); }
-    .nav { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .logo { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--paper); font-size: 20px; }
-    h1 { margin: 0; font-size: clamp(22px,4vw,38px); letter-spacing: -.05em; font-family: var(--serif); font-weight: 500; }
-    .subtitle { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
-    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    /* ── Spinner ── */
+    .spinner-overlay{position:fixed;inset:0;z-index:90;background:rgba(246,241,231,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s;}
+    .spinner-overlay.show{opacity:1;pointer-events:all;}
+    .spinner{width:36px;height:36px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
 
-    /* ── Buttons ── */
-    button, .file-label {
-      border: 1px solid var(--ink); color: var(--ink); background: transparent;
-      padding: 10px 14px; border-radius: 999px; cursor: pointer; font-weight: 800;
-      font-size: 12px; letter-spacing: .02em; transition: .18s ease;
-      display: inline-flex; gap: 7px; align-items: center; justify-content: center;
-      text-transform: uppercase; font-family: var(--font);
-    }
-    button:hover, .file-label:hover { transform: translateY(-1px); background: var(--ink); color: var(--paper); }
-    .primary { background: var(--accent); color: var(--paper); border-color: var(--accent); }
-    .primary:hover { background: var(--ink); border-color: var(--ink); }
-    .ghost-danger { color: var(--danger); border-color: var(--danger); }
-    .ghost-danger:hover { background: var(--danger); color: var(--paper); }
-    input[type="file"] { display: none; }
+    header{padding:18px 0;position:sticky;top:0;z-index:20;backdrop-filter:blur(16px);background:rgba(246,241,231,.88);border-bottom:1px solid var(--line);}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:18px;}
+    .brand{display:flex;align-items:center;gap:12px;}
+    .logo{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--paper);font-size:20px;}
+    h1{margin:0;font-size:clamp(22px,4vw,38px);letter-spacing:-.05em;font-family:var(--serif);font-weight:500;}
+    .subtitle{margin:2px 0 0;color:var(--muted);font-size:13px;}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;}
+    .edit-link{border:1px solid var(--ink);color:var(--ink);padding:10px 14px;border-radius:999px;font-weight:800;font-size:12px;letter-spacing:.02em;text-decoration:none;text-transform:uppercase;display:inline-flex;align-items:center;transition:.18s ease;}
+    .edit-link:hover{background:var(--ink);color:var(--paper);}
 
-    /* ── Hero ── */
-    .hero { padding: 42px 0 26px; }
-    .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; align-items: stretch; }
-    .card { border: 1px solid var(--line); background: rgba(255,250,241,.72); border-radius: var(--radius); overflow: hidden; }
-    .hero-main { padding: clamp(24px,5vw,54px); position: relative; min-height: 300px; display: flex; flex-direction: column; justify-content: space-between; }
-    .hero-main::after {
-      content: ""; position: absolute; width: 210px; height: 210px; right: 34px; bottom: 30px; border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%,var(--butter),#d8855c 45%,var(--accent-dark) 46%,var(--accent-dark) 53%,transparent 54%);
-      opacity: .2;
-    }
-    .kicker { color: var(--accent-dark); font-weight: 900; text-transform: uppercase; letter-spacing: .16em; font-size: 11px; }
-    .hero-main h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(40px,8vw,100px); line-height: .84; margin: 14px 0 20px; letter-spacing: -.075em; position: relative; z-index: 1; }
-    .hero-main p { color: var(--muted); max-width: 660px; line-height: 1.55; font-size: 15px; position: relative; z-index: 1; margin: 0; }
-    .hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; position: relative; z-index: 1; }
-    .chip { border: 1px solid var(--line); background: rgba(255,255,255,.3); color: var(--muted); padding: 8px 11px; border-radius: 999px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; font-weight: 800; }
-    .stats { padding: 16px; display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; background: var(--paper-2); }
-    .stat { border: 1px solid rgba(30,27,23,.13); border-radius: 16px; padding: 18px; background: rgba(255,250,241,.52); min-height: 110px; display: flex; flex-direction: column; justify-content: space-between; }
-    .stat small { color: var(--muted); display: block; margin-bottom: 8px; text-transform: uppercase; font-size: 11px; letter-spacing: .08em; font-weight: 900; }
-    .stat strong { font-family: var(--serif); font-weight: 500; font-size: 34px; letter-spacing: -.06em; line-height: .95; }
+    button{border:1px solid var(--ink);color:var(--ink);background:transparent;padding:10px 14px;border-radius:999px;cursor:pointer;font-weight:800;font-size:12px;letter-spacing:.02em;transition:.18s ease;display:inline-flex;gap:7px;align-items:center;justify-content:center;text-transform:uppercase;font-family:var(--font);}
+    button:hover{transform:translateY(-1px);background:var(--ink);color:var(--paper);}
 
-    /* ── Toolbar ── */
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin: 22px 0; }
-    .searchbar { flex: 1 1 240px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .searchbar input, select, textarea, input[type="text"], input[type="number"], input[type="date"] {
-      width: 100%; border: 1px solid var(--line); border-radius: 999px; padding: 11px 14px;
-      background: rgba(255,250,241,.75); color: var(--ink); outline: none; font-family: var(--font); font-size: 14px;
-    }
-    textarea { border-radius: 18px !important; }
-    select { min-width: 150px; appearance: auto; }
-    option { color: var(--ink); }
-    .toolbar-right { display: flex; gap: 8px; align-items: center; }
+    .hero{padding:42px 0 26px;}
+    .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;align-items:stretch;}
+    .card{border:1px solid var(--line);background:rgba(255,250,241,.72);border-radius:var(--radius);overflow:hidden;}
+    .hero-main{padding:clamp(24px,5vw,54px);position:relative;min-height:300px;display:flex;flex-direction:column;justify-content:space-between;}
+    .hero-main::after{content:"";position:absolute;width:210px;height:210px;right:34px;bottom:30px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--butter),#d8855c 45%,var(--accent-dark) 46%,var(--accent-dark) 53%,transparent 54%);opacity:.2;}
+    .kicker{color:var(--accent-dark);font-weight:900;text-transform:uppercase;letter-spacing:.16em;font-size:11px;}
+    .hero-main h2{font-family:var(--serif);font-weight:500;font-size:clamp(40px,8vw,100px);line-height:.84;margin:14px 0 20px;letter-spacing:-.075em;position:relative;z-index:1;}
+    .hero-main p{color:var(--muted);max-width:660px;line-height:1.55;font-size:15px;position:relative;z-index:1;margin:0;}
+    .hero-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px;position:relative;z-index:1;}
+    .chip{border:1px solid var(--line);background:rgba(255,255,255,.3);color:var(--muted);padding:8px 11px;border-radius:999px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:800;}
+    .stats{padding:16px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;background:var(--paper-2);}
+    .stat{border:1px solid rgba(30,27,23,.13);border-radius:16px;padding:18px;background:rgba(255,250,241,.52);min-height:110px;display:flex;flex-direction:column;justify-content:space-between;}
+    .stat small{color:var(--muted);display:block;margin-bottom:8px;text-transform:uppercase;font-size:11px;letter-spacing:.08em;font-weight:900;}
+    .stat strong{font-family:var(--serif);font-weight:500;font-size:34px;letter-spacing:-.06em;line-height:.95;}
 
-    /* ── Card grid ── */
-    .grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; padding-bottom: 80px; }
-    .coffee { padding: 18px; display: flex; flex-direction: column; gap: 11px; background: var(--paper); transition: .18s ease; cursor: pointer; }
-    .coffee:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(30,27,23,.09); }
-    .coffee-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
-    .origin-flag { font-size: 32px; width: 62px; height: 62px; border-radius: 50%; background: var(--paper-2); display: grid; place-items: center; border: 1px solid var(--line); flex-shrink: 0; }
-    .avg-rating { color: var(--paper); background: var(--ink); padding: 7px 11px; border-radius: 999px; font-weight: 900; min-width: 54px; text-align: center; font-size: 14px; }
-    .coffee h3 { margin: 0; font-family: var(--serif); font-size: 26px; font-weight: 500; letter-spacing: -.055em; line-height: .95; }
-    .meta { color: var(--muted); font-size: 12px; line-height: 1.45; margin: 0; }
-    .roaster-line { color: var(--accent-dark); font-size: 12px; font-weight: 700; margin: 0; }
-    .degusts { display: flex; flex-wrap: wrap; gap: 5px; }
-    .degust-chip { display: inline-flex; align-items: center; gap: 4px; background: rgba(197,79,44,.09); border: 1px solid rgba(197,79,44,.25); color: var(--accent-dark); padding: 4px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
-    .degust-chip .d-score { background: var(--accent); color: var(--paper); border-radius: 999px; padding: 1px 5px; font-size: 10px; font-weight: 900; }
-    .degust-chip.no-score { background: rgba(111,103,93,.08); border-color: rgba(111,103,93,.2); color: var(--muted); }
-    .rebuy-badge { font-size: 11px; color: var(--muted); }
-    .rebuy-badge.yes { color: var(--green); }
-    .rebuy-badge.no { color: var(--danger); }
-    .coffee-actions { display: flex; gap: 7px; margin-top: 2px; }
-    .coffee-actions button { padding: 7px 10px; font-size: 11px; }
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:22px 0;}
+    .searchbar{flex:1 1 240px;display:flex;gap:10px;flex-wrap:wrap;}
+    .searchbar input,select,input[type="text"]{width:100%;border:1px solid var(--line);border-radius:999px;padding:11px 14px;background:rgba(255,250,241,.75);color:var(--ink);outline:none;font-family:var(--font);font-size:14px;}
+    select{min-width:150px;appearance:auto;}
+    option{color:var(--ink);}
+    .toolbar-right{display:flex;gap:8px;align-items:center;}
 
-    /* ── Radar SVG ── */
-    .radar-wrap { display: flex; justify-content: center; align-items: center; }
-    .radar-wrap svg { overflow: visible; }
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding-bottom:80px;}
+    .coffee{padding:18px;display:flex;flex-direction:column;gap:11px;background:var(--paper);transition:.18s ease;cursor:pointer;}
+    .coffee:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(30,27,23,.09);}
+    .coffee-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
+    .origin-flag{font-size:32px;width:62px;height:62px;border-radius:50%;background:var(--paper-2);display:grid;place-items:center;border:1px solid var(--line);flex-shrink:0;}
+    .avg-rating{color:var(--paper);background:var(--ink);padding:7px 11px;border-radius:999px;font-weight:900;min-width:54px;text-align:center;font-size:14px;}
+    .coffee h3{margin:0;font-family:var(--serif);font-size:26px;font-weight:500;letter-spacing:-.055em;line-height:.95;}
+    .meta{color:var(--muted);font-size:12px;line-height:1.45;margin:0;}
+    .roaster-line{color:var(--accent-dark);font-size:12px;font-weight:700;margin:0;}
+    .degusts{display:flex;flex-wrap:wrap;gap:5px;}
+    .degust-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(197,79,44,.09);border:1px solid rgba(197,79,44,.25);color:var(--accent-dark);padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700;}
+    .degust-chip .d-score{background:var(--accent);color:var(--paper);border-radius:999px;padding:1px 5px;font-size:10px;font-weight:900;}
+    .degust-chip.no-score{background:rgba(111,103,93,.08);border-color:rgba(111,103,93,.2);color:var(--muted);}
+    .rebuy-badge{font-size:11px;color:var(--muted);}
+    .rebuy-badge.yes{color:var(--green);}
+    .rebuy-badge.no{color:var(--danger);}
+    .radar-wrap{display:flex;justify-content:center;align-items:center;}
+    .radar-wrap svg{overflow:visible;}
 
-    /* ── Detail panel (slide-in) ── */
-    .detail-overlay {
-      position: fixed; inset: 0; z-index: 40;
-      background: rgba(30,27,23,.36); backdrop-filter: blur(8px);
-      opacity: 0; pointer-events: none; transition: opacity .22s ease;
-    }
-    .detail-overlay.open { opacity: 1; pointer-events: all; }
-    .detail-panel {
-      position: fixed; top: 0; right: 0; bottom: 0; z-index: 41;
-      width: min(520px, 100vw);
-      background: var(--paper); border-left: 1px solid var(--line);
-      display: flex; flex-direction: column;
-      transform: translateX(100%); transition: transform .26s cubic-bezier(.22,1,.36,1);
-      overflow: hidden;
-    }
-    .detail-panel.open { transform: translateX(0); }
-    .detail-head {
-      padding: 20px 22px; border-bottom: 1px solid var(--line);
-      background: var(--paper-2); flex-shrink: 0;
-      display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
-    }
-    .detail-head-info { flex: 1; min-width: 0; }
-    .detail-flag { font-size: 28px; }
-    .detail-name { font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -.04em; line-height: 1; margin: 4px 0 2px; }
-    .detail-roaster { color: var(--accent-dark); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
-    .detail-meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
-    .detail-avg { font-family: var(--serif); font-size: 44px; font-weight: 500; letter-spacing: -.06em; color: var(--accent); line-height: 1; }
-    .detail-body { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 22px; display: grid; gap: 20px; }
-    .detail-section-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .1em; color: var(--accent-dark); border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 10px; }
-    .detail-degusts { display: grid; gap: 10px; }
-    .detail-degust { background: var(--paper-2); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
-    .detail-degust-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .detail-degust-drink { font-weight: 800; font-size: 13px; }
-    .detail-degust-score { background: var(--ink); color: var(--paper); border-radius: 999px; padding: 3px 10px; font-size: 13px; font-weight: 900; }
-    .detail-degust-date { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
-    .detail-degust-notes { color: var(--accent-dark); font-size: 12px; font-style: italic; margin-bottom: 4px; }
-    .detail-degust-comments { color: var(--muted); font-size: 12px; line-height: 1.5; }
-    .detail-actions { padding: 16px 22px; border-top: 1px solid var(--line); display: flex; gap: 10px; flex-shrink: 0; background: var(--paper); }
-    .modal-head { padding: 18px 22px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--paper-2); flex-shrink: 0; }
-    .modal-head h2 { margin: 0; letter-spacing: -.05em; font-family: var(--serif); font-weight: 500; font-size: 28px; }
-    .modal-body { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 22px; display: grid; gap: 20px; }
-    .section-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .1em; color: var(--accent-dark); border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 12px; }
-    .form-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
-    .form-grid.cols3 { grid-template-columns: repeat(3,1fr); }
-    label { display: grid; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
-    textarea { min-height: 72px; resize: vertical; }
-    .range-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-    .range-row { background: var(--paper-2); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
-    .range-row span { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; font-weight: 800; margin-bottom: 8px; }
-    input[type="range"] { width: 100%; accent-color: var(--accent); }
-    .degust-list { display: grid; gap: 10px; }
-    .degust-item { background: var(--paper-2); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: grid; gap: 10px; }
-    .degust-item-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-    .degust-item-head strong { font-size: 13px; color: var(--ink); font-weight: 800; }
-    .degust-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .degust-fields label { font-size: 10px; }
-    .add-degust-btn {
-      border: 1px dashed var(--line); color: var(--muted); border-radius: 14px; padding: 12px;
-      width: 100%; text-align: center; cursor: pointer; font-size: 12px; font-weight: 800;
-      text-transform: uppercase; letter-spacing: .06em; background: transparent; transition: .15s; display: block;
-    }
-    .add-degust-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(197,79,44,.05); transform: none; }
-    .remove-degust { padding: 5px 9px !important; font-size: 11px !important; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 4px; }
+    .detail-overlay{position:fixed;inset:0;z-index:40;background:rgba(30,27,23,.36);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .22s ease;}
+    .detail-overlay.open{opacity:1;pointer-events:all;}
+    .detail-panel{position:fixed;top:0;right:0;bottom:0;z-index:41;width:min(520px,100vw);background:var(--paper);border-left:1px solid var(--line);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .26s cubic-bezier(.22,1,.36,1);overflow:hidden;}
+    .detail-panel.open{transform:translateX(0);}
+    .detail-head{padding:20px 22px;border-bottom:1px solid var(--line);background:var(--paper-2);flex-shrink:0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+    .detail-head-info{flex:1;min-width:0;}
+    .detail-flag{font-size:28px;}
+    .detail-name{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-.04em;line-height:1;margin:4px 0 2px;}
+    .detail-roaster{color:var(--accent-dark);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+    .detail-meta{color:var(--muted);font-size:12px;margin-top:4px;}
+    .detail-avg{font-family:var(--serif);font-size:44px;font-weight:500;letter-spacing:-.06em;color:var(--accent);line-height:1;}
+    .detail-body{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:22px;display:grid;gap:20px;}
+    .detail-section-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-dark);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+    .detail-degusts{display:grid;gap:10px;}
+    .detail-degust{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:14px;}
+    .detail-degust-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+    .detail-degust-drink{font-weight:800;font-size:13px;}
+    .detail-degust-score{background:var(--ink);color:var(--paper);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:900;}
+    .detail-degust-date{color:var(--muted);font-size:11px;margin-bottom:6px;}
+    .detail-degust-notes{color:var(--accent-dark);font-size:12px;font-style:italic;margin-bottom:4px;}
+    .detail-degust-comments{color:var(--muted);font-size:12px;line-height:1.5;}
+    .detail-actions{padding:16px 22px;border-top:1px solid var(--line);display:flex;gap:10px;flex-shrink:0;background:var(--paper);}
 
-    .edit-link { border:1px solid var(--ink); color:var(--ink); padding:10px 14px; border-radius:999px; font-weight:800; font-size:12px; letter-spacing:.02em; text-decoration:none; text-transform:uppercase; display:inline-flex; align-items:center; transition:.18s ease; }
-    .edit-link:hover { background:var(--ink); color:var(--paper); }
-    .empty { text-align: center; padding: 42px 20px; color: var(--muted); grid-column: 1/-1; }
-    footer { color: var(--muted); text-align: center; padding: 32px 0 46px; border-top: 1px solid var(--line); font-size: 13px; }
+    .empty{text-align:center;padding:42px 20px;color:var(--muted);grid-column:1/-1;}
+    footer{color:var(--muted);text-align:center;padding:32px 0 46px;border-top:1px solid var(--line);font-size:13px;}
 
-    /* ── Responsive ── */
-    @media (max-width: 920px) {
-      .hero-grid { grid-template-columns: 1fr; }
-      .grid { grid-template-columns: repeat(2,1fr); }
-      .nav { align-items: flex-start; flex-direction: column; }
-      .actions { justify-content: flex-start; }
+    @media(max-width:920px){
+      .hero-grid{grid-template-columns:1fr;}
+      .grid{grid-template-columns:repeat(2,1fr);}
+      .nav{align-items:flex-start;flex-direction:column;}
+      .actions{justify-content:flex-start;}
     }
-    @media (max-width: 640px) {
-      .wrap { width: min(100% - 20px,1180px); }
-      header { padding-top: 14px; }
-      .grid, .stats, .form-grid, .range-grid, .degust-fields { grid-template-columns: 1fr !important; }
-      .toolbar { align-items: stretch; }
-      .searchbar { flex-direction: column; }
-      .actions button, .actions .file-label { width: 100%; }
-      .hero-main { min-height: 260px; }
-      .hero-main h2 { font-size: 48px; }
-      .modal-actions { flex-wrap: wrap; }
-      .modal-actions button { flex: 1 1 auto; }
-      .detail-actions { flex-wrap: wrap; }
-      .detail-actions button { flex: 1 1 auto; }
+    @media(max-width:640px){
+      .wrap{width:min(100% - 20px,1180px);}
+      header{padding-top:14px;}
+      .grid,.stats{grid-template-columns:1fr!important;}
+      .toolbar{align-items:stretch;}
+      .searchbar{flex-direction:column;}
+      .hero-main{min-height:260px;}
+      .hero-main h2{font-size:48px;}
+      .detail-actions{flex-wrap:wrap;}
+      .detail-actions button{flex:1 1 auto;}
     }
   </style>
 </head>
 <body>
+
+<div class="spinner-overlay show" id="spinnerOverlay"><div class="spinner"></div></div>
 
 <header>
   <div class="wrap nav">
@@ -209,8 +164,8 @@
       </div>
     </div>
     <div class="actions">
-        <a href="edit.html" class="edit-link">Modo edici&oacute;n &rarr;</a>
-      </div>
+      <a href="edit.html" class="edit-link">Modo edici&oacute;n</a>
+    </div>
   </div>
 </header>
 
@@ -222,11 +177,8 @@
         <h2>Una biblioteca personal para guardar cada taza que vale la pena recordar.</h2>
         <p>Registr&aacute; origen, perfil sensorial y degustaciones por tipo de bebida. Compar&aacute; c&oacute;mo cambia un mismo grano en espresso, AeroPress o cappuccino.</p>
         <div class="hero-chips">
-          <span class="chip">Espresso</span>
-          <span class="chip">AeroPress</span>
-          <span class="chip">Cappuccino</span>
-          <span class="chip">Radar</span>
-          <span class="chip">Ranking</span>
+          <span class="chip">Espresso</span><span class="chip">AeroPress</span>
+          <span class="chip">Cappuccino</span><span class="chip">Radar</span><span class="chip">Ranking</span>
         </div>
       </div>
       <div class="card stats">
@@ -237,7 +189,6 @@
       </div>
     </div>
   </section>
-
   <section class="toolbar">
     <div class="searchbar">
       <input id="searchInput" type="text" placeholder="Buscar por caf&eacute;, tostador, origen..." />
@@ -257,11 +208,9 @@
       </select>
     </div>
   </section>
-
   <section class="grid" id="coffeeGrid"></section>
 </main>
 
-<!-- Detail panel -->
 <div class="detail-overlay" id="detailOverlay"></div>
 <aside class="detail-panel" id="detailPanel">
   <div class="detail-head">
@@ -277,60 +226,40 @@
     </div>
   </div>
   <div class="detail-body">
-    <div>
-      <div class="detail-section-label">Perfil sensorial</div>
-      <div class="radar-wrap" id="dRadar"></div>
-    </div>
-    <div>
-      <div class="detail-section-label">Degustaciones</div>
-      <div class="detail-degusts" id="dDegusts"></div>
-    </div>
+    <div><div class="detail-section-label">Perfil sensorial</div><div class="radar-wrap" id="dRadar"></div></div>
+    <div><div class="detail-section-label">Degustaciones</div><div class="detail-degusts" id="dDegusts"></div></div>
   </div>
   <div class="detail-actions">
     <button id="detailCloseBtn">Cerrar</button>
   </div>
 </aside>
+
+<footer>
+  Coffee Journal &middot; Sincronizado con Firebase &middot; <span id="syncStatus">Cargando...</span>
+</footer>
+
 <script>
-const STORAGE_KEY = "carlosCoffeeVault.v3";
-const RADAR_LABELS = ['Aroma','Acidez','Dulzor','Cuerpo','Amargor','Balance'];
-const RADAR_KEYS   = ['aroma','acidity','sweetness','body','bitterness','balance'];
+const RADAR_LABELS=['Aroma','Acidez','Dulzor','Cuerpo','Amargor','Balance'];
+const RADAR_KEYS  =['aroma','acidity','sweetness','body','bitterness','balance'];
+let coffees=[];
+let detailCoffeeId=null;
+const grid=document.getElementById('coffeeGrid');
+const overlay=document.getElementById('detailOverlay');
+const detailPanel=document.getElementById('detailPanel');
+const spinnerEl=document.getElementById('spinnerOverlay');
 
-const demoCoffees = [
-  { id:"demo-1", name:"illy Etiopía", roaster:"illy", origin:"Etiopía", flag:"🇪🇹", variety:"Arábica", process:"Lavado", roast:"Medio", price:"$14 / 250g", rebuy:"true", aroma:4, acidity:4, sweetness:3, body:3, bitterness:2, balance:4, createdAt:Date.now()-86400000*10,
-    degustations:[{id:"d1",drink:"AeroPress",rating:8.9,date:"2025-05-18",notes:"Floral, cítrico, elegante",comments:"Excelente para mañanas."},{id:"d2",drink:"Espresso",rating:7.8,date:"2025-05-20",notes:"Intenso, pierde el floral",comments:"Prefiero en AeroPress."}]},
-  { id:"demo-2", name:"Lavazza Super Crema", roaster:"Lavazza", origin:"Blend", flag:"🌍", variety:"Blend", process:"No especificado", roast:"Medio", price:"$18 / 1kg", rebuy:"true", aroma:3, acidity:2, sweetness:3, body:4, bitterness:3, balance:4, createdAt:Date.now()-86400000*5,
-    degustations:[{id:"d3",drink:"Espresso",rating:8.5,date:"2025-05-22",notes:"Chocolate, crema, balanceado",comments:"Muy buen diario."},{id:"d4",drink:"Cappuccino",rating:9.0,date:"2025-05-23",notes:"Crema extra, dulce natural",comments:"Probablemente mejor como cappuccino."}]},
-  { id:"demo-3", name:"Finca San Andrés Pacamara", roaster:"Café de El Salvador", origin:"El Salvador", flag:"🇸🇻", variety:"Pacamara", process:"Natural", roast:"Medio", price:"$10 / 250g", rebuy:"true", aroma:4, acidity:3, sweetness:4, body:4, bitterness:2, balance:5, createdAt:Date.now()-86400000*1,
-    degustations:[{id:"d5",drink:"AeroPress",rating:9.2,date:"2025-05-29",notes:"Dulce, cacao, frutas maduras",comments:"Mi referencia local."},{id:"d6",drink:"Pour Over / V60",rating:8.8,date:"2025-05-30",notes:"Frutal, limpio, retrogusto largo",comments:"Excelente en V60 también."}]}
-];
-
-let coffees = loadCoffees();
-let detailCoffeeId = null;
-const grid = document.getElementById('coffeeGrid');
-const overlay = document.getElementById('detailOverlay');
-const detailPanel = document.getElementById('detailPanel');
-
-function loadCoffees() {
-  const s = localStorage.getItem(STORAGE_KEY);
-  if (!s) return demoCoffees;
-  try { return JSON.parse(s); } catch { return demoCoffees; }
-}
-function escapeHtml(s) { return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-function avgRating(degs) {
-  const r=(degs||[]).filter(d=>Number(d.rating)>0);
-  return r.length?r.reduce((s,d)=>s+Number(d.rating),0)/r.length:0;
-}
-function rebuyLabel(v){return v==='true'?'\u2665\ufe0f Repetiría':v==='false'?'\u2715 No repetiría':'\u25cb Tal vez';}
+function hideSpinner(){spinnerEl.classList.remove('show');}
+function escapeHtml(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function avgRating(degs){const r=(degs||[]).filter(d=>Number(d.rating)>0);return r.length?r.reduce((s,d)=>s+Number(d.rating),0)/r.length:0;}
+function rebuyLabel(v){return v==='true'?'\u2665\ufe0f Repetir\u00eda':v==='false'?'\u2715 No repetir\u00eda':'\u25cb Tal vez';}
 function rebuyClass(v){return v==='true'?'yes':v==='false'?'no':'';}
 function formatDate(d){if(!d)return'';try{const[y,m,day]=d.split('-');return`${day}/${m}/${y}`;}catch{return d;}}
 
 function radarSVG(c,size=160){
   const cx=size/2,cy=size/2,r=size*0.38;
-  const vals=RADAR_KEYS.map(k=>Number(c[k]||0)/5);
-  const N=6;
+  const vals=RADAR_KEYS.map(k=>Number(c[k]||0)/5);const N=6;
   function pt(i,frac){const a=(Math.PI*2*i/N)-Math.PI/2;return[cx+frac*r*Math.cos(a),cy+frac*r*Math.sin(a)];}
-  let rings='';
-  [.2,.4,.6,.8,1].forEach(f=>{const pts=Array.from({length:N},(_,i)=>pt(i,f).join(',')).join(' ');rings+=`<polygon points="${pts}" fill="none" stroke="#d8cdbc" stroke-width="1"/>`;});
+  let rings='';[.2,.4,.6,.8,1].forEach(f=>{const pts=Array.from({length:N},(_,i)=>pt(i,f).join(',')).join(' ');rings+=`<polygon points="${pts}" fill="none" stroke="#d8cdbc" stroke-width="1"/>`;});
   let axes='';for(let i=0;i<N;i++){const[x,y]=pt(i,1);axes+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d8cdbc" stroke-width="1"/>`;}
   const dpts=vals.map((_,i)=>pt(i,vals[i]).join(',')).join(' ');
   const poly=`<polygon points="${dpts}" fill="rgba(197,79,44,.18)" stroke="#c54f2c" stroke-width="2" stroke-linejoin="round"/>`;
@@ -342,7 +271,7 @@ function radarSVG(c,size=160){
 function renderOriginOptions(){
   const sel=document.getElementById('originFilter'),cur=sel.value;
   const origs=[...new Set(coffees.map(c=>c.origin).filter(Boolean))].sort();
-  sel.innerHTML='<option value="">Todos los países</option>'+origs.map(o=>`<option>${o}</option>`).join('');
+  sel.innerHTML='<option value="">Todos los pa\u00edses</option>'+origs.map(o=>`<option>${o}</option>`).join('');
   sel.value=cur;
 }
 
@@ -355,9 +284,9 @@ function filteredCoffees(){
     const txt=`${c.name} ${c.roaster||''} ${c.origin} ${c.variety||''} ${c.process||''} ${c.roast||''} `+(c.degustations||[]).map(d=>`${d.notes||''} ${d.comments||''} ${d.drink||''}`).join(' ');
     return(!q||txt.toLowerCase().includes(q))&&(!drink||(c.degustations||[]).some(d=>d.drink===drink))&&(!origin||c.origin===origin);
   });
-  if(sort==='rating') list.sort((a,b)=>avgRating(b.degustations)-avgRating(a.degustations));
-  if(sort==='recent') list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  if(sort==='name')   list.sort((a,b)=>a.name.localeCompare(b.name));
+  if(sort==='rating')list.sort((a,b)=>avgRating(b.degustations)-avgRating(a.degustations));
+  if(sort==='recent')list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(sort==='name')  list.sort((a,b)=>a.name.localeCompare(b.name));
   return list;
 }
 
@@ -366,15 +295,15 @@ function render(){
   const list=filteredCoffees();
   grid.innerHTML=list.length?list.map(c=>{
     const avg=avgRating(c.degustations),degs=c.degustations||[];
-    return `<article class="card coffee" onclick="openDetail('${c.id}')">
-      <div class="coffee-top"><div class="origin-flag">${escapeHtml(c.flag||'☕')}</div><div class="avg-rating">${avg?avg.toFixed(1):'—'}</div></div>
+    return`<article class="card coffee" onclick="openDetail('${c.id}')">
+      <div class="coffee-top"><div class="origin-flag">${escapeHtml(c.flag||'\u2615')}</div><div class="avg-rating">${avg?avg.toFixed(1):'\u2014'}</div></div>
       <div>${c.roaster?`<p class="roaster-line">${escapeHtml(c.roaster)}</p>`:''}<h3>${escapeHtml(c.name)}</h3>
-        <p class="meta">${escapeHtml(c.origin||'Origen pendiente')} · ${escapeHtml(c.roast||'')}${c.price?` · ${escapeHtml(c.price)}`:''}${c.variety?`<br>${escapeHtml(c.variety)}`:''}${c.process?` · ${escapeHtml(c.process)}`:''}</p></div>
+      <p class="meta">${escapeHtml(c.origin||'Origen pendiente')} &middot; ${escapeHtml(c.roast||'')}${c.price?` &middot; ${escapeHtml(c.price)}`:''}${c.variety?`<br>${escapeHtml(c.variety)}`:''}${c.process?` &middot; ${escapeHtml(c.process)}`:''}</p></div>
       <div class="radar-wrap">${radarSVG(c,130)}</div>
       <div class="degusts">${degs.length?degs.map(d=>`<span class="degust-chip${!Number(d.rating)?' no-score':''}">${escapeHtml(d.drink||'Bebida')}${Number(d.rating)?` <span class="d-score">${Number(d.rating).toFixed(1)}</span>`:''}</span>`).join(''):'<span style="color:var(--muted);font-size:11px">Sin degustaciones</span>'}</div>
       <div class="rebuy-badge ${rebuyClass(c.rebuy)}">${rebuyLabel(c.rebuy)}</div>
     </article>`;
-  }).join(''):`<div class="empty card"><h3>No hay cafés con ese filtro.</h3><p>Probá limpiar la búsqueda.</p></div>`;
+  }).join(''):`<div class="empty card"><h3>Sin caf\u00e9s todav\u00eda.</h3><p>A\u00f1ad\u00ed tu primer caf\u00e9 desde el modo edici\u00f3n.</p></div>`;
   updateStats();
 }
 
@@ -386,18 +315,18 @@ function updateStats(){
   document.getElementById('statTotal').textContent=coffees.length;
   document.getElementById('statAvg').textContent=g?g.toFixed(1):'0.0';
   document.getElementById('statFavs').textContent=favs;
-  document.getElementById('statBest').textContent=best?best.name.split(' ')[0]:'—';
+  document.getElementById('statBest').textContent=best?best.name.split(' ')[0]:'\u2014';
 }
 
 window.openDetail=function(id){
   const c=coffees.find(x=>x.id===id);if(!c)return;
   detailCoffeeId=id;
-  document.getElementById('dFlag').textContent=c.flag||'☕';
+  document.getElementById('dFlag').textContent=c.flag||'\u2615';
   document.getElementById('dName').textContent=c.name;
   document.getElementById('dRoaster').textContent=c.roaster||'';
-  document.getElementById('dMeta').textContent=[c.origin,c.roast,c.variety,c.process].filter(Boolean).join(' · ')+(c.price?' · '+c.price:'');
+  document.getElementById('dMeta').textContent=[c.origin,c.roast,c.variety,c.process].filter(Boolean).join(' \u00b7 ')+(c.price?' \u00b7 '+c.price:'');
   const avg=avgRating(c.degustations);
-  document.getElementById('dAvg').textContent=avg?avg.toFixed(1):'—';
+  document.getElementById('dAvg').textContent=avg?avg.toFixed(1):'\u2014';
   document.getElementById('dRebuy').className='rebuy-badge '+rebuyClass(c.rebuy);
   document.getElementById('dRebuy').textContent=rebuyLabel(c.rebuy);
   document.getElementById('dRadar').innerHTML=radarSVG(c,200);
@@ -406,12 +335,12 @@ window.openDetail=function(id){
     <div class="detail-degust">
       <div class="detail-degust-head">
         <span class="detail-degust-drink">${escapeHtml(d.drink||'Bebida')}</span>
-        ${Number(d.rating)?`<span class="detail-degust-score">${Number(d.rating).toFixed(1)}</span>`:'<span style="color:var(--muted);font-size:12px">Sin puntuación</span>'}
+        ${Number(d.rating)?`<span class="detail-degust-score">${Number(d.rating).toFixed(1)}</span>`:'<span style="color:var(--muted);font-size:12px">Sin puntuaci\u00f3n</span>'}
       </div>
       ${d.date?`<div class="detail-degust-date">${formatDate(d.date)}</div>`:''}
       ${d.notes?`<div class="detail-degust-notes">"${escapeHtml(d.notes)}"</div>`:''}
       ${d.comments?`<div class="detail-degust-comments">${escapeHtml(d.comments)}</div>`:''}
-    </div>`).join(''):'<p style="color:var(--muted);font-size:13px">Sin degustaciones aún.</p>';
+    </div>`).join(''):'<p style="color:var(--muted);font-size:13px">Sin degustaciones a\u00fan.</p>';
   overlay.classList.add('open');
   detailPanel.classList.add('open');
 };
@@ -421,7 +350,30 @@ document.getElementById('detailCloseBtn').addEventListener('click',closeDetail);
 overlay.addEventListener('click',closeDetail);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
 ['searchInput','drinkFilter','originFilter','sortSelect'].forEach(id=>document.getElementById(id).addEventListener('input',render));
-render();
+
+// ── Load from Firebase ──
+function waitForFirebase(){
+  return new Promise(resolve=>{
+    if(window._firebaseReady){resolve();return;}
+    document.addEventListener('firebaseReady',()=>resolve(),{once:true});
+  });
+}
+
+async function init(){
+  try{
+    await waitForFirebase();
+    const snap=await window._getDocs(window._col());
+    coffees=snap.docs.map(d=>({id:d.id,...d.data()}));
+    render();
+    document.getElementById('syncStatus').textContent=`${coffees.length} caf\u00e9s`;
+  }catch(e){
+    console.error(e);
+    document.getElementById('syncStatus').textContent='Error de conexi\u00f3n';
+    grid.innerHTML=`<div class="empty card"><h3>Error al cargar.</h3><p>Revis\u00e1 tu conexi\u00f3n a internet.</p></div>`;
+  }finally{hideSpinner();}
+}
+
+init();
 </script>
 </body>
 </html>

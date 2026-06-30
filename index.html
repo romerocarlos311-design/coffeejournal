@@ -108,9 +108,9 @@
       width: min(780px, calc(100% - 28px)); max-height: calc(100dvh - 32px);
       border: 1px solid var(--line); border-radius: 24px; background: var(--paper);
       color: var(--ink); box-shadow: 0 35px 100px rgba(30,27,23,.35);
-      padding: 0; overflow: hidden; display: flex; flex-direction: column;
+      padding: 0; overflow: hidden;
     }
-    dialog[open] { display: flex; }
+    dialog[open] { display: flex; flex-direction: column; }
     dialog::backdrop { background: rgba(30,27,23,.36); backdrop-filter: blur(8px); }
     .modal-head { padding: 20px 22px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--paper-2); flex-shrink: 0; }
     .modal-head h2 { margin: 0; letter-spacing: -.05em; font-family: var(--serif); font-weight: 500; font-size: 30px; }
@@ -511,9 +511,23 @@
         const el = document.getElementById(f); if (!el) return;
         data[f] = RANGE_FIELDS.includes(f) ? Number(el.value) : el.value;
       });
-      data.degustations = currentDegustations.map(d => ({
-        ...d, rating: d.rating !== '' ? Number(d.rating) : 0
-      }));
+
+      // Leer degustaciones directo del DOM para evitar problemas con oninput en mobile
+      const items = document.querySelectorAll('#degustList .degust-item');
+      data.degustations = Array.from(items).map((item, i) => {
+        const drinkEl = item.querySelector('select');
+        const ratingEl = item.querySelector('input[type="number"]');
+        const notesEl = item.querySelector('input[type="text"]');
+        const commentsEl = item.querySelector('textarea');
+        return {
+          id: (currentDegustations[i] && currentDegustations[i].id) || crypto.randomUUID(),
+          drink: drinkEl ? drinkEl.value : 'Espresso',
+          rating: ratingEl && ratingEl.value !== '' ? Number(ratingEl.value) : 0,
+          notes: notesEl ? notesEl.value : '',
+          comments: commentsEl ? commentsEl.value : ''
+        };
+      });
+
       const id = document.getElementById('coffeeId').value;
       if (id) {
         coffees = coffees.map(c => c.id===id ? {...c, ...data} : c);

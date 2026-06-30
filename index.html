@@ -157,14 +157,21 @@
     .detail-actions { padding: 16px 22px; border-top: 1px solid var(--line); display: flex; gap: 10px; flex-shrink: 0; background: var(--paper); }
 
     /* ── Edit/Add modal ── */
-    dialog {
-      width: min(780px,calc(100% - 28px)); max-height: calc(100dvh - 32px);
-      border: 1px solid var(--line); border-radius: 24px; background: var(--paper);
-      color: var(--ink); box-shadow: 0 35px 100px rgba(30,27,23,.35);
-      padding: 0; overflow: hidden;
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(30,27,23,.42); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+      opacity: 0; pointer-events: none; transition: opacity .2s ease;
     }
-    dialog[open] { display: flex; flex-direction: column; }
-    dialog::backdrop { background: rgba(30,27,23,.36); backdrop-filter: blur(8px); }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+      width: min(780px, 100%);
+      height: min(92vh, 100%);
+      background: var(--paper); border: 1px solid var(--line);
+      border-radius: 24px; box-shadow: 0 35px 100px rgba(30,27,23,.35);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
     .modal-head { padding: 18px 22px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--paper-2); flex-shrink: 0; }
     .modal-head h2 { margin: 0; letter-spacing: -.05em; font-family: var(--serif); font-weight: 500; font-size: 28px; }
     .modal-body { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 22px; display: grid; gap: 20px; }
@@ -323,12 +330,13 @@
 </aside>
 
 <!-- Edit/Add modal -->
-<dialog id="coffeeDialog">
-  <div class="modal-head">
-    <h2 id="modalTitle">Nuevo caf&eacute;</h2>
-    <button id="closeDialog" type="button">Cerrar</button>
-  </div>
-  <div class="modal-body">
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box" id="coffeeDialog">
+    <div class="modal-head">
+      <h2 id="modalTitle">Nuevo caf&eacute;</h2>
+      <button id="closeDialog" type="button">Cerrar</button>
+    </div>
+    <div class="modal-body">
     <input type="hidden" id="coffeeId" />
 
     <div>
@@ -369,7 +377,7 @@
       <button type="button" id="saveBtn" class="primary">Guardar caf&eacute;</button>
     </div>
   </div>
-</dialog>
+</div>
 
 <footer>
   Coffee Journal &middot; Biblioteca personal &middot; Datos guardados localmente en este navegador.
@@ -442,6 +450,9 @@ let detailCoffeeId = null;
 
 const grid        = document.getElementById('coffeeGrid');
 const dlg         = document.getElementById('coffeeDialog');
+const modalOverlay = document.getElementById('modalOverlay');
+function openModal(){ modalOverlay.classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(){ modalOverlay.classList.remove('open'); document.body.style.overflow=''; }
 const overlay     = document.getElementById('detailOverlay');
 const detailPanel = document.getElementById('detailPanel');
 
@@ -669,7 +680,7 @@ function openNew() {
   currentDegustations=[];
   renderDegustList();
   document.getElementById('deleteBtn').style.display='none';
-  dlg.showModal();
+  openModal();
 }
 
 window.openEdit = function(id) {
@@ -684,7 +695,7 @@ window.openEdit = function(id) {
   currentDegustations=(c.degustations||[]).map(d=>({...d}));
   renderDegustList();
   document.getElementById('deleteBtn').style.display='inline-flex';
-  dlg.showModal();
+  openModal();
 };
 
 /* ── Modal: save ── */
@@ -725,14 +736,14 @@ document.getElementById('saveBtn').addEventListener('click',()=>{
   } else {
     coffees.push({id:crypto.randomUUID(),createdAt:Date.now(),...data});
   }
-  saveCoffees(); dlg.close(); render();
+  saveCoffees(); closeModal(); render();
 });
 
 document.getElementById('deleteBtn').addEventListener('click',()=>{
   const id=document.getElementById('coffeeId').value; if(!id) return;
   if(confirm('\u00bfEliminar este caf\u00e9 de tu biblioteca?')){
     coffees=coffees.filter(c=>c.id!==id);
-    saveCoffees(); dlg.close(); render();
+    saveCoffees(); closeModal(); render();
   }
 });
 
@@ -772,12 +783,14 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
   document.getElementById(id).addEventListener('input',render));
 document.getElementById('addBtnHeader').addEventListener('click',openNew);
 document.getElementById('fabBtn').addEventListener('click',openNew);
-document.getElementById('closeDialog').addEventListener('click',()=>dlg.close());
+document.getElementById('closeDialog').addEventListener('click',()=>closeModal());
 RANGE_FIELDS.forEach(id=>document.getElementById(id).addEventListener('input',()=>updateRangeLabel(id)));
 function updateRangeLabel(id){document.getElementById(id+'Val').textContent=document.getElementById(id).value;}
 
 // Cerrar modal con Escape ya lo maneja el browser, pero también cerramos detail
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDetail(); });
+// Click en overlay cierra modal
+modalOverlay.addEventListener('click', e=>{ if(e.target===modalOverlay) closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeDetail(); closeModal(); } });
 
 render();
 </script>

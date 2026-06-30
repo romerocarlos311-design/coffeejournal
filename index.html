@@ -48,19 +48,6 @@
     .ghost-danger:hover { background: var(--danger); color: var(--paper); }
     input[type="file"] { display: none; }
 
-    /* ── FAB (mobile floating add button) ── */
-    .fab {
-      display: none;
-      position: fixed; bottom: 24px; right: 24px; z-index: 30;
-      width: 56px; height: 56px; border-radius: 50%;
-      background: var(--accent); color: var(--paper); border: none;
-      font-size: 26px; font-weight: 400; cursor: pointer;
-      box-shadow: 0 6px 24px rgba(197,79,44,.45);
-      align-items: center; justify-content: center;
-      transition: .18s ease;
-    }
-    .fab:hover { background: var(--ink); transform: scale(1.08); }
-
     /* ── Hero ── */
     .hero { padding: 42px 0 26px; }
     .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; align-items: stretch; }
@@ -155,23 +142,6 @@
     .detail-degust-notes { color: var(--accent-dark); font-size: 12px; font-style: italic; margin-bottom: 4px; }
     .detail-degust-comments { color: var(--muted); font-size: 12px; line-height: 1.5; }
     .detail-actions { padding: 16px 22px; border-top: 1px solid var(--line); display: flex; gap: 10px; flex-shrink: 0; background: var(--paper); }
-
-    /* ── Edit/Add modal ── */
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 50;
-      background: rgba(30,27,23,.42); backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 16px;
-      opacity: 0; pointer-events: none; transition: opacity .2s ease;
-    }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-    .modal-box {
-      width: min(780px, 100%);
-      height: min(92vh, 100%);
-      background: var(--paper); border: 1px solid var(--line);
-      border-radius: 24px; box-shadow: 0 35px 100px rgba(30,27,23,.35);
-      display: flex; flex-direction: column; overflow: hidden;
-    }
     .modal-head { padding: 18px 22px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--paper-2); flex-shrink: 0; }
     .modal-head h2 { margin: 0; letter-spacing: -.05em; font-family: var(--serif); font-weight: 500; font-size: 28px; }
     .modal-body { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 22px; display: grid; gap: 20px; }
@@ -199,6 +169,8 @@
     .remove-degust { padding: 5px 9px !important; font-size: 11px !important; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 4px; }
 
+    .edit-link { border:1px solid var(--ink); color:var(--ink); padding:10px 14px; border-radius:999px; font-weight:800; font-size:12px; letter-spacing:.02em; text-decoration:none; text-transform:uppercase; display:inline-flex; align-items:center; transition:.18s ease; }
+    .edit-link:hover { background:var(--ink); color:var(--paper); }
     .empty { text-align: center; padding: 42px 20px; color: var(--muted); grid-column: 1/-1; }
     footer { color: var(--muted); text-align: center; padding: 32px 0 46px; border-top: 1px solid var(--line); font-size: 13px; }
 
@@ -208,8 +180,6 @@
       .grid { grid-template-columns: repeat(2,1fr); }
       .nav { align-items: flex-start; flex-direction: column; }
       .actions { justify-content: flex-start; }
-      #addBtnHeader { display: none; }
-      .fab { display: flex; }
     }
     @media (max-width: 640px) {
       .wrap { width: min(100% - 20px,1180px); }
@@ -239,11 +209,8 @@
       </div>
     </div>
     <div class="actions">
-      <button class="primary" id="addBtnHeader">+ Nuevo caf&eacute;</button>
-      <button id="exportBtn">Exportar</button>
-      <label class="file-label" for="importFile">Importar</label>
-      <input id="importFile" type="file" accept="application/json" />
-    </div>
+        <a href="edit.html" class="edit-link">Modo edici&oacute;n &rarr;</a>
+      </div>
   </div>
 </header>
 
@@ -288,15 +255,11 @@
         <option value="recent">Ordenar: m&aacute;s reciente</option>
         <option value="name">Ordenar: nombre A-Z</option>
       </select>
-      <button class="ghost-danger" id="resetBtn">Demo</button>
     </div>
   </section>
 
   <section class="grid" id="coffeeGrid"></section>
 </main>
-
-<!-- FAB mobile -->
-<button class="fab" id="fabBtn" title="Nuevo caf&eacute;">+</button>
 
 <!-- Detail panel -->
 <div class="detail-overlay" id="detailOverlay"></div>
@@ -324,273 +287,117 @@
     </div>
   </div>
   <div class="detail-actions">
-    <button id="detailEditBtn" class="primary">Editar caf&eacute;</button>
     <button id="detailCloseBtn">Cerrar</button>
   </div>
 </aside>
-
-<!-- Edit/Add modal -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-box" id="coffeeDialog">
-    <div class="modal-head">
-      <h2 id="modalTitle">Nuevo caf&eacute;</h2>
-      <button id="closeDialog" type="button">Cerrar</button>
-    </div>
-    <div class="modal-body">
-    <input type="hidden" id="coffeeId" />
-
-    <div>
-      <div class="section-label">Datos del caf&eacute;</div>
-      <div class="form-grid">
-        <label>Nombre<input id="name" type="text" placeholder="Finca San Andr&eacute;s Pacamara" /></label>
-        <label>Tostador / marca<input id="roaster" type="text" placeholder="illy, Lavazza, local..." /></label>
-        <label>Pa&iacute;s / origen<input id="origin" type="text" placeholder="El Salvador" /></label>
-        <label>Bandera / emoji<input id="flag" type="text" maxlength="4" placeholder="&#127480;&#127483;" /></label>
-        <label>Variedad<input id="variety" type="text" placeholder="Pacamara, Ar&aacute;bica..." /></label>
-        <label>Proceso<input id="process" type="text" placeholder="Lavado, natural, honey..." /></label>
-        <label>Tueste<select id="roast"><option>Claro</option><option>Medio</option><option>Medio-oscuro</option><option>Oscuro</option><option>No s&eacute;</option></select></label>
-        <label>Precio pagado<input id="price" type="text" placeholder="$12.50 / 250g" /></label>
-        <label style="grid-column:1/-1">&iquest;Lo volver&iacute;as a comprar?<select id="rebuy"><option value="true">S&iacute;, lo repetir&iacute;a</option><option value="false">No lo repetir&iacute;a</option><option value="maybe">Tal vez</option></select></label>
-      </div>
-    </div>
-
-    <div>
-      <div class="section-label">Perfil sensorial del caf&eacute;</div>
-      <div class="range-grid">
-        <div class="range-row"><span>Aroma <b id="aromaVal">3</b></span><input id="aroma" type="range" min="1" max="5" step="1" value="3" /></div>
-        <div class="range-row"><span>Acidez <b id="acidityVal">3</b></span><input id="acidity" type="range" min="1" max="5" step="1" value="3" /></div>
-        <div class="range-row"><span>Dulzor <b id="sweetnessVal">3</b></span><input id="sweetness" type="range" min="1" max="5" step="1" value="3" /></div>
-        <div class="range-row"><span>Cuerpo <b id="bodyVal">3</b></span><input id="body" type="range" min="1" max="5" step="1" value="3" /></div>
-        <div class="range-row"><span>Amargor <b id="bitternessVal">3</b></span><input id="bitterness" type="range" min="1" max="5" step="1" value="3" /></div>
-        <div class="range-row"><span>Balance <b id="balanceVal">3</b></span><input id="balance" type="range" min="1" max="5" step="1" value="3" /></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="section-label">Degustaciones por bebida</div>
-      <div class="degust-list" id="degustList"></div>
-      <button type="button" class="add-degust-btn" id="addDegustBtn">+ Agregar degustaci&oacute;n</button>
-    </div>
-
-    <div class="modal-actions">
-      <button type="button" id="deleteBtn" class="ghost-danger" style="display:none">Eliminar</button>
-      <button type="button" id="saveBtn" class="primary">Guardar caf&eacute;</button>
-    </div>
-  </div>
-</div>
-
-<footer>
-  Coffee Journal &middot; Biblioteca personal &middot; Datos guardados localmente en este navegador.
-</footer>
-
 <script>
 const STORAGE_KEY = "carlosCoffeeVault.v3";
-const DRINK_TYPES = ["Espresso","Cappuccino","Flat White","Americano","AeroPress","Moka","Pour Over / V60","French Press","Cold Brew","Otro"];
-const BASE_FIELDS = ['name','roaster','origin','flag','variety','process','roast','price','rebuy','aroma','acidity','sweetness','body','bitterness','balance'];
-const RANGE_FIELDS = ['aroma','acidity','sweetness','body','bitterness','balance'];
 const RADAR_LABELS = ['Aroma','Acidez','Dulzor','Cuerpo','Amargor','Balance'];
 const RADAR_KEYS   = ['aroma','acidity','sweetness','body','bitterness','balance'];
 
-/* ── Demo data ── */
 const demoCoffees = [
-  {
-    id: crypto.randomUUID(), name: "illy Etiop\u00eda", roaster: "illy", origin: "Etiop\u00eda", flag: "\ud83c\uddea\ud83c\uddf9",
-    variety: "Ar\u00e1bica", process: "Lavado", roast: "Medio", price: "$14 / 250g", rebuy: "true",
-    aroma:4, acidity:4, sweetness:3, body:3, bitterness:2, balance:4,
-    createdAt: Date.now() - 86400000*10,
-    degustations: [
-      { id:crypto.randomUUID(), drink:"AeroPress", rating:8.9, date:"2025-05-18", notes:"Floral, c\u00edtrico, elegante", comments:"Excelente para ma\u00f1anas." },
-      { id:crypto.randomUUID(), drink:"Espresso",  rating:7.8, date:"2025-05-20", notes:"Intenso, pierde el floral", comments:"Prefiero en AeroPress." }
-    ]
-  },
-  {
-    id: crypto.randomUUID(), name: "Lavazza Super Crema", roaster: "Lavazza", origin: "Blend", flag: "\ud83c\udf0d",
-    variety: "Blend", process: "No especificado", roast: "Medio", price: "$18 / 1kg", rebuy: "true",
-    aroma:3, acidity:2, sweetness:3, body:4, bitterness:3, balance:4,
-    createdAt: Date.now() - 86400000*5,
-    degustations: [
-      { id:crypto.randomUUID(), drink:"Espresso",   rating:8.5, date:"2025-05-22", notes:"Chocolate, crema, balanceado", comments:"Muy buen diario." },
-      { id:crypto.randomUUID(), drink:"Cappuccino", rating:9.0, date:"2025-05-23", notes:"Crema extra, dulce natural", comments:"Probablemente mejor como cappuccino." }
-    ]
-  },
-  {
-    id: crypto.randomUUID(), name: "Monsooned Malabar", roaster: "Importado", origin: "India", flag: "\ud83c\uddee\ud83c\uddf3",
-    variety: "Ar\u00e1bica", process: "Monsooned", roast: "Medio-oscuro", price: "$22 / 250g", rebuy: "maybe",
-    aroma:4, acidity:1, sweetness:3, body:5, bitterness:3, balance:4,
-    createdAt: Date.now() - 86400000*2,
-    degustations: [
-      { id:crypto.randomUUID(), drink:"Espresso", rating:9.0, date:"2025-05-28", notes:"Especias, madera, cuerpo alto", comments:"Perfil muy distinto, ideal para explorar." }
-    ]
-  },
-  {
-    id: crypto.randomUUID(), name: "Finca San Andr\u00e9s Pacamara", roaster: "Caf\u00e9 de El Salvador", origin: "El Salvador", flag: "\ud83c\uddf8\ud83c\uddfb",
-    variety: "Pacamara", process: "Natural", roast: "Medio", price: "$10 / 250g", rebuy: "true",
-    aroma:4, acidity:3, sweetness:4, body:4, bitterness:2, balance:5,
-    createdAt: Date.now() - 86400000*1,
-    degustations: [
-      { id:crypto.randomUUID(), drink:"AeroPress",    rating:9.2, date:"2025-05-29", notes:"Dulce, cacao, frutas maduras", comments:"Mi referencia local." },
-      { id:crypto.randomUUID(), drink:"Pour Over / V60", rating:8.8, date:"2025-05-30", notes:"Frutal, limpio, retrogusto largo", comments:"Excelente en V60 tambi\u00e9n." }
-    ]
-  },
-  {
-    id: crypto.randomUUID(), name: "Death Wish", roaster: "Death Wish Coffee", origin: "Blend", flag: "\ud83c\udf0d",
-    variety: "Blend", process: "No especificado", roast: "Oscuro", price: "$20 / 283g", rebuy: "maybe",
-    aroma:3, acidity:1, sweetness:2, body:5, bitterness:4, balance:3,
-    createdAt: Date.now() - 86400000*3,
-    degustations: [
-      { id:crypto.randomUUID(), drink:"Moka", rating:8.0, date:"2025-05-27", notes:"Muy intenso, alto cuerpo", comments:"Para d\u00edas que quiero algo fuerte." }
-    ]
-  }
+  { id:"demo-1", name:"illy Etiopía", roaster:"illy", origin:"Etiopía", flag:"🇪🇹", variety:"Arábica", process:"Lavado", roast:"Medio", price:"$14 / 250g", rebuy:"true", aroma:4, acidity:4, sweetness:3, body:3, bitterness:2, balance:4, createdAt:Date.now()-86400000*10,
+    degustations:[{id:"d1",drink:"AeroPress",rating:8.9,date:"2025-05-18",notes:"Floral, cítrico, elegante",comments:"Excelente para mañanas."},{id:"d2",drink:"Espresso",rating:7.8,date:"2025-05-20",notes:"Intenso, pierde el floral",comments:"Prefiero en AeroPress."}]},
+  { id:"demo-2", name:"Lavazza Super Crema", roaster:"Lavazza", origin:"Blend", flag:"🌍", variety:"Blend", process:"No especificado", roast:"Medio", price:"$18 / 1kg", rebuy:"true", aroma:3, acidity:2, sweetness:3, body:4, bitterness:3, balance:4, createdAt:Date.now()-86400000*5,
+    degustations:[{id:"d3",drink:"Espresso",rating:8.5,date:"2025-05-22",notes:"Chocolate, crema, balanceado",comments:"Muy buen diario."},{id:"d4",drink:"Cappuccino",rating:9.0,date:"2025-05-23",notes:"Crema extra, dulce natural",comments:"Probablemente mejor como cappuccino."}]},
+  { id:"demo-3", name:"Finca San Andrés Pacamara", roaster:"Café de El Salvador", origin:"El Salvador", flag:"🇸🇻", variety:"Pacamara", process:"Natural", roast:"Medio", price:"$10 / 250g", rebuy:"true", aroma:4, acidity:3, sweetness:4, body:4, bitterness:2, balance:5, createdAt:Date.now()-86400000*1,
+    degustations:[{id:"d5",drink:"AeroPress",rating:9.2,date:"2025-05-29",notes:"Dulce, cacao, frutas maduras",comments:"Mi referencia local."},{id:"d6",drink:"Pour Over / V60",rating:8.8,date:"2025-05-30",notes:"Frutal, limpio, retrogusto largo",comments:"Excelente en V60 también."}]}
 ];
 
-/* ── State ── */
 let coffees = loadCoffees();
-let currentDegustations = [];
 let detailCoffeeId = null;
-
-const grid        = document.getElementById('coffeeGrid');
-const dlg         = document.getElementById('coffeeDialog');
-const modalOverlay = document.getElementById('modalOverlay');
-function openModal(){ modalOverlay.classList.add('open'); document.body.style.overflow='hidden'; }
-function closeModal(){ modalOverlay.classList.remove('open'); document.body.style.overflow=''; }
-const overlay     = document.getElementById('detailOverlay');
+const grid = document.getElementById('coffeeGrid');
+const overlay = document.getElementById('detailOverlay');
 const detailPanel = document.getElementById('detailPanel');
 
-/* ── Storage ── */
 function loadCoffees() {
   const s = localStorage.getItem(STORAGE_KEY);
-  if (!s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(demoCoffees)); return demoCoffees; }
+  if (!s) return demoCoffees;
   try { return JSON.parse(s); } catch { return demoCoffees; }
 }
-function saveCoffees() { localStorage.setItem(STORAGE_KEY, JSON.stringify(coffees)); }
-
-/* ── Helpers ── */
 function escapeHtml(s) { return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function avgRating(degs) {
-  const r = (degs||[]).filter(d=>Number(d.rating)>0);
-  return r.length ? r.reduce((s,d)=>s+Number(d.rating),0)/r.length : 0;
+  const r=(degs||[]).filter(d=>Number(d.rating)>0);
+  return r.length?r.reduce((s,d)=>s+Number(d.rating),0)/r.length:0;
 }
-function rebuyLabel(v) { return v==='true'?'\u2665\ufe0f Repetir\u00eda':v==='false'?'\u2715 No repetir\u00eda':'\u25cb Tal vez'; }
-function rebuyClass(v) { return v==='true'?'yes':v==='false'?'no':''; }
-function formatDate(d) {
-  if (!d) return '';
-  try { const [y,m,day]=d.split('-'); return `${day}/${m}/${y}`; } catch { return d; }
-}
+function rebuyLabel(v){return v==='true'?'\u2665\ufe0f Repetiría':v==='false'?'\u2715 No repetiría':'\u25cb Tal vez';}
+function rebuyClass(v){return v==='true'?'yes':v==='false'?'no':'';}
+function formatDate(d){if(!d)return'';try{const[y,m,day]=d.split('-');return`${day}/${m}/${y}`;}catch{return d;}}
 
-/* ── Radar SVG ── */
-function radarSVG(c, size=160) {
-  const cx=size/2, cy=size/2, r=size*0.38, labelR=size*0.5;
-  const vals = RADAR_KEYS.map(k=>Number(c[k]||0)/5);
+function radarSVG(c,size=160){
+  const cx=size/2,cy=size/2,r=size*0.38;
+  const vals=RADAR_KEYS.map(k=>Number(c[k]||0)/5);
   const N=6;
-  function pt(i,frac) {
-    const angle = (Math.PI*2*i/N) - Math.PI/2;
-    return [cx+frac*r*Math.cos(angle), cy+frac*r*Math.sin(angle)];
-  }
-  // grid rings
+  function pt(i,frac){const a=(Math.PI*2*i/N)-Math.PI/2;return[cx+frac*r*Math.cos(a),cy+frac*r*Math.sin(a)];}
   let rings='';
-  [.2,.4,.6,.8,1].forEach(f=>{
-    const pts=Array.from({length:N},(_,i)=>pt(i,f).join(',')).join(' ');
-    rings+=`<polygon points="${pts}" fill="none" stroke="#d8cdbc" stroke-width="1"/>`;
-  });
-  // axes
-  let axes='';
-  for(let i=0;i<N;i++){
-    const [x,y]=pt(i,1);
-    axes+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d8cdbc" stroke-width="1"/>`;
-  }
-  // data polygon
+  [.2,.4,.6,.8,1].forEach(f=>{const pts=Array.from({length:N},(_,i)=>pt(i,f).join(',')).join(' ');rings+=`<polygon points="${pts}" fill="none" stroke="#d8cdbc" stroke-width="1"/>`;});
+  let axes='';for(let i=0;i<N;i++){const[x,y]=pt(i,1);axes+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d8cdbc" stroke-width="1"/>`;}
   const dpts=vals.map((_,i)=>pt(i,vals[i]).join(',')).join(' ');
   const poly=`<polygon points="${dpts}" fill="rgba(197,79,44,.18)" stroke="#c54f2c" stroke-width="2" stroke-linejoin="round"/>`;
-  // dots
   const dots=vals.map((_,i)=>{const[x,y]=pt(i,vals[i]);return`<circle cx="${x}" cy="${y}" r="3.5" fill="#c54f2c"/>`;}).join('');
-  // labels
-  const labels=RADAR_LABELS.map((l,i)=>{
-    const [x,y]=pt(i,1.22);
-    return`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="${size*0.085}" font-family="Inter,sans-serif" font-weight="800" fill="#6f675d" text-transform="uppercase">${l}</text>`;
-  }).join('');
+  const labels=RADAR_LABELS.map((l,i)=>{const[x,y]=pt(i,1.22);return`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="${size*0.085}" font-family="Inter,sans-serif" font-weight="800" fill="#6f675d">${l}</text>`;}).join('');
   return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">${rings}${axes}${poly}${dots}${labels}</svg>`;
 }
 
-/* ── Render cards ── */
-function renderOriginOptions() {
-  const sel=document.getElementById('originFilter'), cur=sel.value;
+function renderOriginOptions(){
+  const sel=document.getElementById('originFilter'),cur=sel.value;
   const origs=[...new Set(coffees.map(c=>c.origin).filter(Boolean))].sort();
-  sel.innerHTML='<option value="">Todos los pa\u00edses</option>'+origs.map(o=>`<option>${o}</option>`).join('');
+  sel.innerHTML='<option value="">Todos los países</option>'+origs.map(o=>`<option>${o}</option>`).join('');
   sel.value=cur;
 }
 
-function filteredCoffees() {
+function filteredCoffees(){
   const q=document.getElementById('searchInput').value.toLowerCase().trim();
   const drink=document.getElementById('drinkFilter').value;
   const origin=document.getElementById('originFilter').value;
   const sort=document.getElementById('sortSelect').value;
   let list=coffees.filter(c=>{
-    const txt=`${c.name} ${c.roaster||''} ${c.origin} ${c.variety||''} ${c.process||''} ${c.roast||''} `+
-      (c.degustations||[]).map(d=>`${d.notes||''} ${d.comments||''} ${d.drink||''}`).join(' ');
-    return (!q||txt.toLowerCase().includes(q))&&
-           (!drink||(c.degustations||[]).some(d=>d.drink===drink))&&
-           (!origin||c.origin===origin);
+    const txt=`${c.name} ${c.roaster||''} ${c.origin} ${c.variety||''} ${c.process||''} ${c.roast||''} `+(c.degustations||[]).map(d=>`${d.notes||''} ${d.comments||''} ${d.drink||''}`).join(' ');
+    return(!q||txt.toLowerCase().includes(q))&&(!drink||(c.degustations||[]).some(d=>d.drink===drink))&&(!origin||c.origin===origin);
   });
-  if(sort==='rating')  list.sort((a,b)=>avgRating(b.degustations)-avgRating(a.degustations));
-  if(sort==='recent')  list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  if(sort==='name')    list.sort((a,b)=>a.name.localeCompare(b.name));
+  if(sort==='rating') list.sort((a,b)=>avgRating(b.degustations)-avgRating(a.degustations));
+  if(sort==='recent') list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(sort==='name')   list.sort((a,b)=>a.name.localeCompare(b.name));
   return list;
 }
 
-function render() {
+function render(){
   renderOriginOptions();
   const list=filteredCoffees();
-  grid.innerHTML = list.length ? list.map(c=>{
-    const avg=avgRating(c.degustations);
-    const degs=c.degustations||[];
-    return `
-    <article class="card coffee" onclick="openDetail('${c.id}')">
-      <div class="coffee-top">
-        <div class="origin-flag">${escapeHtml(c.flag||'\u2615')}</div>
-        <div class="avg-rating">${avg?avg.toFixed(1):'\u2014'}</div>
-      </div>
-      <div>
-        ${c.roaster?`<p class="roaster-line">${escapeHtml(c.roaster)}</p>`:''}
-        <h3>${escapeHtml(c.name)}</h3>
-        <p class="meta">${escapeHtml(c.origin||'Origen pendiente')} &middot; ${escapeHtml(c.roast||'')}${c.price?` &middot; ${escapeHtml(c.price)}`:''}${c.variety?`<br>${escapeHtml(c.variety)}`:''}${c.process?` &middot; ${escapeHtml(c.process)}`:''}</p>
-      </div>
+  grid.innerHTML=list.length?list.map(c=>{
+    const avg=avgRating(c.degustations),degs=c.degustations||[];
+    return `<article class="card coffee" onclick="openDetail('${c.id}')">
+      <div class="coffee-top"><div class="origin-flag">${escapeHtml(c.flag||'☕')}</div><div class="avg-rating">${avg?avg.toFixed(1):'—'}</div></div>
+      <div>${c.roaster?`<p class="roaster-line">${escapeHtml(c.roaster)}</p>`:''}<h3>${escapeHtml(c.name)}</h3>
+        <p class="meta">${escapeHtml(c.origin||'Origen pendiente')} · ${escapeHtml(c.roast||'')}${c.price?` · ${escapeHtml(c.price)}`:''}${c.variety?`<br>${escapeHtml(c.variety)}`:''}${c.process?` · ${escapeHtml(c.process)}`:''}</p></div>
       <div class="radar-wrap">${radarSVG(c,130)}</div>
-      <div class="degusts">
-        ${degs.length?degs.map(d=>`
-          <span class="degust-chip${!Number(d.rating)?' no-score':''}">
-            ${escapeHtml(d.drink||'Bebida')}${Number(d.rating)?` <span class="d-score">${Number(d.rating).toFixed(1)}</span>`:''}
-          </span>`).join(''):'<span style="color:var(--muted);font-size:11px">Sin degustaciones</span>'}
-      </div>
+      <div class="degusts">${degs.length?degs.map(d=>`<span class="degust-chip${!Number(d.rating)?' no-score':''}">${escapeHtml(d.drink||'Bebida')}${Number(d.rating)?` <span class="d-score">${Number(d.rating).toFixed(1)}</span>`:''}</span>`).join(''):'<span style="color:var(--muted);font-size:11px">Sin degustaciones</span>'}</div>
       <div class="rebuy-badge ${rebuyClass(c.rebuy)}">${rebuyLabel(c.rebuy)}</div>
-      <div class="coffee-actions" onclick="event.stopPropagation()">
-        <button onclick="openEdit('${c.id}')">Editar</button>
-      </div>
     </article>`;
-  }).join('') : `<div class="empty card"><h3>No hay caf\u00e9s con ese filtro.</h3><p>Prob\u00e1 limpiar la b\u00fasqueda o agregar uno nuevo.</p></div>`;
+  }).join(''):`<div class="empty card"><h3>No hay cafés con ese filtro.</h3><p>Probá limpiar la búsqueda.</p></div>`;
   updateStats();
 }
 
-function updateStats() {
+function updateStats(){
   const avgs=coffees.map(c=>avgRating(c.degustations)).filter(v=>v>0);
-  const globalAvg=avgs.length?avgs.reduce((s,v)=>s+v,0)/avgs.length:0;
+  const g=avgs.length?avgs.reduce((s,v)=>s+v,0)/avgs.length:0;
   const favs=coffees.filter(c=>c.rebuy==='true').length;
   const best=coffees.filter(c=>avgRating(c.degustations)>0).sort((a,b)=>avgRating(b.degustations)-avgRating(a.degustations))[0];
   document.getElementById('statTotal').textContent=coffees.length;
-  document.getElementById('statAvg').textContent=globalAvg?globalAvg.toFixed(1):'0.0';
+  document.getElementById('statAvg').textContent=g?g.toFixed(1):'0.0';
   document.getElementById('statFavs').textContent=favs;
-  document.getElementById('statBest').textContent=best?best.name.split(' ')[0]:'\u2014';
+  document.getElementById('statBest').textContent=best?best.name.split(' ')[0]:'—';
 }
 
-/* ── Detail panel ── */
-window.openDetail = function(id) {
-  const c=coffees.find(x=>x.id===id); if(!c) return;
+window.openDetail=function(id){
+  const c=coffees.find(x=>x.id===id);if(!c)return;
   detailCoffeeId=id;
-  document.getElementById('dFlag').textContent=c.flag||'\u2615';
+  document.getElementById('dFlag').textContent=c.flag||'☕';
   document.getElementById('dName').textContent=c.name;
   document.getElementById('dRoaster').textContent=c.roaster||'';
-  document.getElementById('dMeta').textContent=[c.origin,c.roast,c.variety,c.process].filter(Boolean).join(' \u00b7 ')+(c.price?' \u00b7 '+c.price:'');
+  document.getElementById('dMeta').textContent=[c.origin,c.roast,c.variety,c.process].filter(Boolean).join(' · ')+(c.price?' · '+c.price:'');
   const avg=avgRating(c.degustations);
-  document.getElementById('dAvg').textContent=avg?avg.toFixed(1):'\u2014';
+  document.getElementById('dAvg').textContent=avg?avg.toFixed(1):'—';
   document.getElementById('dRebuy').className='rebuy-badge '+rebuyClass(c.rebuy);
   document.getElementById('dRebuy').textContent=rebuyLabel(c.rebuy);
   document.getElementById('dRadar').innerHTML=radarSVG(c,200);
@@ -599,199 +406,21 @@ window.openDetail = function(id) {
     <div class="detail-degust">
       <div class="detail-degust-head">
         <span class="detail-degust-drink">${escapeHtml(d.drink||'Bebida')}</span>
-        ${Number(d.rating)?`<span class="detail-degust-score">${Number(d.rating).toFixed(1)}</span>`:'<span style="color:var(--muted);font-size:12px">Sin puntuaci\u00f3n</span>'}
+        ${Number(d.rating)?`<span class="detail-degust-score">${Number(d.rating).toFixed(1)}</span>`:'<span style="color:var(--muted);font-size:12px">Sin puntuación</span>'}
       </div>
       ${d.date?`<div class="detail-degust-date">${formatDate(d.date)}</div>`:''}
       ${d.notes?`<div class="detail-degust-notes">"${escapeHtml(d.notes)}"</div>`:''}
       ${d.comments?`<div class="detail-degust-comments">${escapeHtml(d.comments)}</div>`:''}
-    </div>`).join(''):'<p style="color:var(--muted);font-size:13px">Sin degustaciones a\u00fan.</p>';
+    </div>`).join(''):'<p style="color:var(--muted);font-size:13px">Sin degustaciones aún.</p>';
   overlay.classList.add('open');
   detailPanel.classList.add('open');
 };
 
-function closeDetail() {
-  overlay.classList.remove('open');
-  detailPanel.classList.remove('open');
-  detailCoffeeId=null;
-}
-
-document.getElementById('detailCloseBtn').addEventListener('click', closeDetail);
-overlay.addEventListener('click', closeDetail);
-document.getElementById('detailEditBtn').addEventListener('click', ()=>{ closeDetail(); if(detailCoffeeId) openEdit(detailCoffeeId); else openEdit(null); });
-
-/* ── Modal: degust list render ── */
-function renderDegustList() {
-  const container=document.getElementById('degustList');
-  if(!currentDegustations.length){container.innerHTML='';return;}
-  container.innerHTML=currentDegustations.map((d,i)=>`
-    <div class="degust-item">
-      <div class="degust-item-head">
-        <strong>Degustaci\u00f3n ${i+1}</strong>
-        <button type="button" class="ghost-danger remove-degust" onclick="removeDegust(${i})">Quitar</button>
-      </div>
-      <div class="degust-fields">
-        <label>Tipo de bebida
-          <select onchange="onDrinkChange(this,${i})">
-            ${DRINK_TYPES.map(t=>`<option${(t===d.drink||(!DRINK_TYPES.slice(0,-1).includes(d.drink)&&t==='Otro'))?' selected':''}>${t}</option>`).join('')}
-          </select>
-          ${(d.drink==='Otro'||!DRINK_TYPES.slice(0,-1).includes(d.drink))?`<input type="text" class="drink-custom" placeholder="Ej: Chemex, Latte, Ristretto..." value="${escapeHtml(d.drinkCustom||(!DRINK_TYPES.includes(d.drink)?d.drink:''))}" oninput="updateDegust(${i},'drinkCustom',this.value)" style="margin-top:6px;border-radius:12px" />`:''}
-        </label>
-
-        <label>Puntuaci\u00f3n /10
-          <input type="number" min="0" max="10" step="0.1" placeholder="9.1" value="${escapeHtml(String(d.rating||''))}" oninput="updateDegust(${i},'rating',this.value)" />
-        </label>
-        <label>Fecha<input type="date" value="${escapeHtml(d.date||'')}" oninput="updateDegust(${i},'date',this.value)" /></label>
-        <label>Notas de sabor<input type="text" placeholder="Chocolate, c\u00edtricos..." value="${escapeHtml(d.notes||'')}" oninput="updateDegust(${i},'notes',this.value)" /></label>
-        <label style="grid-column:1/-1">Comentarios<textarea placeholder="\u00bfC\u00f3mo estuvo? \u00bflo repetir\u00edas as\u00ed?" oninput="updateDegust(${i},'comments',this.value)">${escapeHtml(d.comments||'')}</textarea></label>
-      </div>
-    </div>`).join('');
-}
-
-window.updateDegust = function(i,field,value){currentDegustations[i][field]=value;};
-window.removeDegust = function(i){currentDegustations.splice(i,1);renderDegustList();};
-window.onDrinkChange = function(sel,i){
-  currentDegustations[i].drink=sel.value;
-  currentDegustations[i].drinkCustom='';
-  renderDegustList();
-  // focus the custom input if Otro was chosen
-  if(sel.value==='Otro'){
-    const item=document.querySelectorAll('#degustList .degust-item')[i];
-    const customInput=item&&item.querySelector('.drink-custom');
-    if(customInput) customInput.focus();
-  }
-};
-
-document.getElementById('addDegustBtn').addEventListener('click',()=>{
-  currentDegustations.push({id:crypto.randomUUID(),drink:'Espresso',rating:'',date:'',notes:'',comments:''});
-  renderDegustList();
-});
-
-/* ── Modal: open ── */
-function openNew() {
-  document.getElementById('modalTitle').textContent='Nuevo caf\u00e9';
-  document.getElementById('coffeeId').value='';
-  BASE_FIELDS.forEach(f=>{
-    const el=document.getElementById(f); if(!el) return;
-    if(RANGE_FIELDS.includes(f)) el.value=3;
-    else if(f==='rebuy') el.value='true';
-    else el.value='';
-  });
-  RANGE_FIELDS.forEach(updateRangeLabel);
-  currentDegustations=[];
-  renderDegustList();
-  document.getElementById('deleteBtn').style.display='none';
-  openModal();
-}
-
-window.openEdit = function(id) {
-  const c=coffees.find(x=>x.id===id); if(!c) return;
-  document.getElementById('modalTitle').textContent='Editar caf\u00e9';
-  document.getElementById('coffeeId').value=c.id;
-  BASE_FIELDS.forEach(f=>{
-    const el=document.getElementById(f); if(!el) return;
-    el.value=c[f]??(RANGE_FIELDS.includes(f)?3:'');
-  });
-  RANGE_FIELDS.forEach(updateRangeLabel);
-  currentDegustations=(c.degustations||[]).map(d=>({...d}));
-  renderDegustList();
-  document.getElementById('deleteBtn').style.display='inline-flex';
-  openModal();
-};
-
-/* ── Modal: save ── */
-document.getElementById('saveBtn').addEventListener('click',()=>{
-  const nameEl=document.getElementById('name');
-  if(!nameEl.value.trim()){nameEl.focus();alert('El nombre del caf\u00e9 es obligatorio.');return;}
-  const data={};
-  BASE_FIELDS.forEach(f=>{
-    const el=document.getElementById(f); if(!el) return;
-    data[f]=RANGE_FIELDS.includes(f)?Number(el.value):el.value;
-  });
-  // Leer degustaciones del DOM (robusto en mobile)
-  const items=document.querySelectorAll('#degustList .degust-item');
-  data.degustations=Array.from(items).map((item,i)=>{
-    const inputs=item.querySelectorAll('input,select,textarea');
-    // select=drink, number=rating, date=date, text=notes, textarea=comments
-    const sel=item.querySelector('select');
-    const num=item.querySelector('input[type="number"]');
-    const dat=item.querySelector('input[type="date"]');
-    const customInput=item.querySelector('.drink-custom');
-    const txt=item.querySelector('input[type="text"]:not(.drink-custom)');
-    const ta =item.querySelector('textarea');
-    const drinkVal=sel?sel.value:'Espresso';
-    const drinkFinal=(drinkVal==='Otro'&&customInput&&customInput.value.trim())
-      ? customInput.value.trim() : drinkVal;
-    return {
-      id:(currentDegustations[i]&&currentDegustations[i].id)||crypto.randomUUID(),
-      drink: drinkFinal,
-      rating:num&&num.value!==''?Number(num.value):0,
-      date:dat?dat.value:'',
-      notes:txt?txt.value:'',
-      comments:ta?ta.value:''
-    };
-  });
-  const id=document.getElementById('coffeeId').value;
-  if(id){
-    coffees=coffees.map(c=>c.id===id?{...c,...data}:c);
-  } else {
-    coffees.push({id:crypto.randomUUID(),createdAt:Date.now(),...data});
-  }
-  saveCoffees(); closeModal(); render();
-});
-
-document.getElementById('deleteBtn').addEventListener('click',()=>{
-  const id=document.getElementById('coffeeId').value; if(!id) return;
-  if(confirm('\u00bfEliminar este caf\u00e9 de tu biblioteca?')){
-    coffees=coffees.filter(c=>c.id!==id);
-    saveCoffees(); closeModal(); render();
-  }
-});
-
-/* ── Export / Import / Reset ── */
-document.getElementById('exportBtn').addEventListener('click',()=>{
-  const blob=new Blob([JSON.stringify(coffees,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url;
-  a.download=`coffee-vault-${new Date().toISOString().slice(0,10)}.json`;
-  a.click(); URL.revokeObjectURL(url);
-});
-
-document.getElementById('importFile').addEventListener('change',e=>{
-  const file=e.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try {
-      const imp=JSON.parse(reader.result);
-      if(!Array.isArray(imp)) throw new Error();
-      coffees=imp.map(c=>({id:c.id||crypto.randomUUID(),...c}));
-      saveCoffees(); render();
-      alert('Coffee Journal importado correctamente.');
-    } catch { alert('No pude importar ese archivo JSON.'); }
-  };
-  reader.readAsText(file);
-});
-
-document.getElementById('resetBtn').addEventListener('click',()=>{
-  if(confirm('Esto reemplazar\u00e1 tus datos por la biblioteca demo. Export\u00e1 antes si quer\u00e9s conservar tus caf\u00e9s.')){
-    coffees=demoCoffees.map(c=>({...c,id:crypto.randomUUID(),degustations:(c.degustations||[]).map(d=>({...d,id:crypto.randomUUID()}))}));
-    saveCoffees(); render();
-  }
-});
-
-/* ── Event listeners ── */
-['searchInput','drinkFilter','originFilter','sortSelect'].forEach(id=>
-  document.getElementById(id).addEventListener('input',render));
-document.getElementById('addBtnHeader').addEventListener('click',openNew);
-document.getElementById('fabBtn').addEventListener('click',openNew);
-document.getElementById('closeDialog').addEventListener('click',()=>closeModal());
-RANGE_FIELDS.forEach(id=>document.getElementById(id).addEventListener('input',()=>updateRangeLabel(id)));
-function updateRangeLabel(id){document.getElementById(id+'Val').textContent=document.getElementById(id).value;}
-
-// Cerrar modal con Escape ya lo maneja el browser, pero también cerramos detail
-// Click en overlay cierra modal
-modalOverlay.addEventListener('click', e=>{ if(e.target===modalOverlay) closeModal(); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeDetail(); closeModal(); } });
-
+function closeDetail(){overlay.classList.remove('open');detailPanel.classList.remove('open');detailCoffeeId=null;}
+document.getElementById('detailCloseBtn').addEventListener('click',closeDetail);
+overlay.addEventListener('click',closeDetail);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
+['searchInput','drinkFilter','originFilter','sortSelect'].forEach(id=>document.getElementById(id).addEventListener('input',render));
 render();
 </script>
 </body>

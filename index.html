@@ -620,10 +620,12 @@ function renderDegustList() {
       </div>
       <div class="degust-fields">
         <label>Tipo de bebida
-          <select onchange="updateDegust(${i},'drink',this.value)">
-            ${DRINK_TYPES.map(t=>`<option${t===d.drink?' selected':''}>${t}</option>`).join('')}
+          <select onchange="onDrinkChange(this,${i})">
+            ${DRINK_TYPES.map(t=>`<option${(t===d.drink||(!DRINK_TYPES.slice(0,-1).includes(d.drink)&&t==='Otro'))?' selected':''}>${t}</option>`).join('')}
           </select>
+          ${(d.drink==='Otro'||!DRINK_TYPES.slice(0,-1).includes(d.drink))?`<input type="text" class="drink-custom" placeholder="Ej: Chemex, Latte, Ristretto..." value="${escapeHtml(d.drinkCustom||(!DRINK_TYPES.includes(d.drink)?d.drink:''))}" oninput="updateDegust(${i},'drinkCustom',this.value)" style="margin-top:6px;border-radius:12px" />`:''}
         </label>
+
         <label>Puntuaci\u00f3n /10
           <input type="number" min="0" max="10" step="0.1" placeholder="9.1" value="${escapeHtml(String(d.rating||''))}" oninput="updateDegust(${i},'rating',this.value)" />
         </label>
@@ -636,6 +638,17 @@ function renderDegustList() {
 
 window.updateDegust = function(i,field,value){currentDegustations[i][field]=value;};
 window.removeDegust = function(i){currentDegustations.splice(i,1);renderDegustList();};
+window.onDrinkChange = function(sel,i){
+  currentDegustations[i].drink=sel.value;
+  currentDegustations[i].drinkCustom='';
+  renderDegustList();
+  // focus the custom input if Otro was chosen
+  if(sel.value==='Otro'){
+    const item=document.querySelectorAll('#degustList .degust-item')[i];
+    const customInput=item&&item.querySelector('.drink-custom');
+    if(customInput) customInput.focus();
+  }
+};
 
 document.getElementById('addDegustBtn').addEventListener('click',()=>{
   currentDegustations.push({id:crypto.randomUUID(),drink:'Espresso',rating:'',date:'',notes:'',comments:''});
@@ -691,11 +704,15 @@ document.getElementById('saveBtn').addEventListener('click',()=>{
     const sel=item.querySelector('select');
     const num=item.querySelector('input[type="number"]');
     const dat=item.querySelector('input[type="date"]');
-    const txt=item.querySelector('input[type="text"]');
+    const customInput=item.querySelector('.drink-custom');
+    const txt=item.querySelector('input[type="text"]:not(.drink-custom)');
     const ta =item.querySelector('textarea');
+    const drinkVal=sel?sel.value:'Espresso';
+    const drinkFinal=(drinkVal==='Otro'&&customInput&&customInput.value.trim())
+      ? customInput.value.trim() : drinkVal;
     return {
       id:(currentDegustations[i]&&currentDegustations[i].id)||crypto.randomUUID(),
-      drink:sel?sel.value:'Espresso',
+      drink: drinkFinal,
       rating:num&&num.value!==''?Number(num.value):0,
       date:dat?dat.value:'',
       notes:txt?txt.value:'',
